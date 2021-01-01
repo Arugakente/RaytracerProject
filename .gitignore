@@ -1,3 +1,6 @@
+raytracerframework_cpp/Debug
+raytracerframework_cpp/yaml
+
 # Prerequisites
 *.d
 
