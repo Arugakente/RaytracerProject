@@ -63,7 +63,7 @@ Hit Cone::intersect(const Ray &ray)
 	Vector CP = ((Vector)(intersect - C));
 	double h_intersect = CP.dot(V);
 
-	if (h_intersect < 0. || h_intersect > h) {
+	if (h_intersect < 0.) {
 
 		if (t == t1 && t2 > 0.0)
 			t = t2;
@@ -80,7 +80,6 @@ Hit Cone::intersect(const Ray &ray)
 		CP = ((Vector)(intersect - C));
 		h_intersect = CP.dot(V);
 	}
-	//std::cout << h_intersect << std::endl;
 
 	if (h_intersect < 0. || h_intersect > h) {
 		return Hit::NO_HIT();
