@@ -32,7 +32,6 @@ Hit Cone::intersect(const Ray &ray)
 	V.normalize();
 	Point C = position + Point(0, h, 0);
 	Vector CO = (Vector)(TransformedRay.O - C);
-	CO.normalize();
 
 	double DdotV = TransformedRay.D.dot(V);
 	double COdotV = CO.dot(V);
@@ -46,22 +45,27 @@ Hit Cone::intersect(const Ray &ray)
 
 	double disc = b * b - 4.0*a*c;
 
-	if (disc < 0) {
+	if (disc < 0.0) {
 		return Hit::NO_HIT();
 	}
+	float t1 = (-b - disc) / (2.0*a);
+	float t2 = (-b + disc) / (2.0*a);
 
-	float t = (-b - disc) / (2.0*a);
-
+	float t = t1;
+	if (t < 0.0 || t2 > 0.0 && t2 < t) t = t2;
+	if (t < 0.0) {
+		return Hit::NO_HIT();
+	}
 
 	Point intersect = TransformedRay.O + t * TransformedRay.D;
 	Vector CP = ((Vector)(intersect - C));
 	double h_intersect = CP.dot(V);
 
-	//std:cout << intersect << std::endl;
+	//std:cout << h_intersect << std::endl;
 
-	if (h_intersect < 0. || h_intersect > h) {
+	/*if (h_intersect < 0. || h_intersect > h) {
 		return Hit::NO_HIT();
-	}
+	}*/
 
 	Vector N = (CP * V.dot(CP) / CP.dot(CP) - V);
 	N.normalize();
