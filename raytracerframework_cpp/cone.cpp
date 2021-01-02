@@ -26,11 +26,11 @@
 
 Hit Cone::intersect(const Ray &ray)
 {
-	Ray TransformedRay = ray;
+	Ray TransformedRay = transform(ray);
 
 	Vector V = Vector(0, -h, 0);
 	V.normalize();
-	Point C = position + Point(0, h, 0);
+	Point C = Point(0, h, 0);
 	Vector CO = (Vector)(TransformedRay.O - C);
 
 	double DdotV = TransformedRay.D.dot(V);
@@ -48,11 +48,11 @@ Hit Cone::intersect(const Ray &ray)
 	if (disc < 0.0) {
 		return Hit::NO_HIT();
 	}
-	float t1 = (-b - disc) / (2.0*a);
-	float t2 = (-b + disc) / (2.0*a);
+	float t1 = (-b - sqrt(disc)) / (2.0*a);
+	float t2 = (-b + sqrt(disc)) / (2.0*a);
 
 	float t = t1;
-	if (t < 0.0 || t2 > 0.0 && t2 < t) t = t2;
+	if (t < 0.0 || (t2 > 0.0  && t2 < t)) t = t2;
 	if (t < 0.0) {
 		return Hit::NO_HIT();
 	}
@@ -61,13 +61,24 @@ Hit Cone::intersect(const Ray &ray)
 	Vector CP = ((Vector)(intersect - C));
 	double h_intersect = CP.dot(V);
 
-	//std:cout << h_intersect << std::endl;
+	if (h_intersect < 0. || h_intersect > h) {
+		if(t==t1 && t2 > 0.0)
+			t=t2;
+		else if(t==t2 && t1 > 0.0)
+			t=t1;
 
-	/*if (h_intersect < 0. || h_intersect > h) {
+		intersect = TransformedRay.O + t * TransformedRay.D;
+		CP = ((Vector)(intersect - C));
+		h_intersect = CP.dot(V);
+	}
+	//std::cout << h_intersect << std::endl;
+
+	if (h_intersect < 0. || h_intersect > h) {
 		return Hit::NO_HIT();
-	}*/
+	}
 
 	Vector N = (CP * V.dot(CP) / CP.dot(CP) - V);
+	N = removeTransformation(N);
 	N.normalize();
 
 	return Hit(t, N);

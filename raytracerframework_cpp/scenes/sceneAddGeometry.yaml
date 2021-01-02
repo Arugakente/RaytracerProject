@@ -72,7 +72,7 @@ Objects:
     n: 32
 - type: cone
   position: [300,150,300]
-  rotation: [0.0,0.0,0.0]
+  rotation: [80.0,0.0,0.0]
   radius: 15
   height: 50
   material:
