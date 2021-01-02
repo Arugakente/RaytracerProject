@@ -55,6 +55,10 @@ Hit Cone::intersect(const Ray &ray)
 
 	float t = t1;
 	if (t < 0.0 || (t2 > 0.0 && t2 < t)) t = t2;
+	if (t < 0.0 || (t3 > 0.0 && t3 < t)) {
+		t = t3;
+		return Hit(t, V);
+	}
 	if (t < 0.0) {
 		return Hit::NO_HIT();
 	}
@@ -67,13 +71,8 @@ Hit Cone::intersect(const Ray &ray)
 
 		if (t == t1 && t2 > 0.0)
 			t = t2;
-
 		else if (t == t2 && t1 > 0.0) {
-			if (t3 < 0) t = t1;
-			else {
-				t = t3;
-				return Hit(t, V);
-			}
+			t = t1;
 		}
 
 		intersect = TransformedRay.O + t * TransformedRay.D;
