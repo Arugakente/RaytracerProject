@@ -32,6 +32,8 @@ public:
     virtual Hit intersect(const Ray &ray) = 0;
     //apply the right translation/rotation to the incomming ray
     Ray transform(const Ray& transformed);
+    //apply transformation to vector
+    Triple applyTransformation(const Triple& toCorrect);
     //removing transformation form objects (normals for example when transformation have a influence on their calculation)
     Triple removeTransformation(const Triple& toCorrect);
     const Point position;

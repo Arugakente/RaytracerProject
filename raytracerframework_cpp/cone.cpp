@@ -55,10 +55,6 @@ Hit Cone::intersect(const Ray &ray)
 
 	float t = t1;
 	if (t < 0.0 || (t2 > 0.0 && t2 < t)) t = t2;
-	if (t < 0.0 || (t3 > 0.0 && t3 < t)) {
-		t = t3;
-		return Hit(t, V);
-	}
 	if (t < 0.0) {
 		return Hit::NO_HIT();
 	}
@@ -81,6 +77,12 @@ Hit Cone::intersect(const Ray &ray)
 	}
 
 	if (h_intersect < 0. || h_intersect > h) {
+		if (t3 > 0)
+		{
+			std::cout << "test" << std::endl;
+			t = t3;
+			return Hit(t, removeTransformation(V));
+		}
 		return Hit::NO_HIT();
 	}
 
@@ -103,9 +105,7 @@ double Cone::solveDisc(const Ray &ray, Vector V) {
 	Vector intersect = ray.O + t * ray.D;
 	double distToCenter = sqrt(intersect.dot(intersect));
 
-	std::cout << intersect << std::endl;
-
 	if (distToCenter > r) return -1.0;
-	
+
 	return t;
 }

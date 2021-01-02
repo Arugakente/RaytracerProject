@@ -38,3 +38,5 @@ raytracerframework_cpp/yaml
 .DS_Store
 
 ray
+
+.vscode/

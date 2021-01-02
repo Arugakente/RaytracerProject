@@ -22,3 +22,12 @@ Triple Object::removeTransformation(const Triple& toCorrect)
     corrected = rMatrix(-rotation.x,rot_x).rotate(corrected);
     return corrected;
 }
+
+Triple Object::applyTransformation(const Triple& toCorrect)
+{
+    Triple corrected = toCorrect;
+    corrected = rMatrix(rotation.x,rot_x).rotate(corrected);
+    corrected = rMatrix(rotation.y,rot_y).rotate(corrected);
+    corrected = rMatrix(rotation.z,rot_z).rotate(corrected);
+    return corrected;
+}
