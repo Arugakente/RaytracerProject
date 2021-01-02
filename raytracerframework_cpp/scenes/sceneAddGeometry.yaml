@@ -71,10 +71,10 @@ Objects:
     ks: 0.8
     n: 32
 - type: cone
-  position: [300,150,300]
-  rotation: [0.0,0.0,0.0]
-  radius: 15
-  height: 50
+  position: [300,100,200]
+  rotation: [-90.0,0.0,0.0]
+  radius: 40
+  height: 150
   material:
     color: [0.90,0.90,0.90]
     ka: 0.3
