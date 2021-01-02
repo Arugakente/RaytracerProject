@@ -30,7 +30,7 @@ Hit Cone::intersect(const Ray &ray)
 
 	Vector V = Vector(0, -h, 0);
 	V.normalize();
-	Point C = Point(0, h, 0);
+	Point C = Point(0, h, 0); //translation handled by transform()
 	Vector CO = (Vector)(TransformedRay.O - C);
 
 	double DdotV = TransformedRay.D.dot(V);
