@@ -25,6 +25,7 @@ public:
 	Cone(Point position, Triple rotation, double r, double h) : Object(position, rotation), r(r), h(h) { }
 
 	virtual Hit intersect(const Ray &ray);
+	double solveDisc(const Ray &ray, Vector V);
 
 	const double r;
 	const double h;

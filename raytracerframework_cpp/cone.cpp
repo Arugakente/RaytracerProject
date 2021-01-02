@@ -51,8 +51,10 @@ Hit Cone::intersect(const Ray &ray)
 	float t1 = (-b - sqrt(disc)) / (2.0*a);
 	float t2 = (-b + sqrt(disc)) / (2.0*a);
 
+	float t3 = solveDisc(TransformedRay, V); //disc handling
+
 	float t = t1;
-	if (t < 0.0 || (t2 > 0.0  && t2 < t)) t = t2;
+	if (t < 0.0 || (t2 > 0.0 && t2 < t)) t = t2;
 	if (t < 0.0) {
 		return Hit::NO_HIT();
 	}
@@ -62,10 +64,17 @@ Hit Cone::intersect(const Ray &ray)
 	double h_intersect = CP.dot(V);
 
 	if (h_intersect < 0. || h_intersect > h) {
-		if(t==t1 && t2 > 0.0)
-			t=t2;
-		else if(t==t2 && t1 > 0.0)
-			t=t1;
+
+		if (t == t1 && t2 > 0.0)
+			t = t2;
+
+		else if (t == t2 && t1 > 0.0) {
+			if (t3 < 0) t = t1;
+			else {
+				t = t3;
+				return Hit(t, V);
+			}
+		}
 
 		intersect = TransformedRay.O + t * TransformedRay.D;
 		CP = ((Vector)(intersect - C));
@@ -82,4 +91,23 @@ Hit Cone::intersect(const Ray &ray)
 	N.normalize();
 
 	return Hit(t, N);
+}
+
+double Cone::solveDisc(const Ray &ray, Vector V) {
+
+	Vector CO = -ray.O; //C - ray.O with C = (0,0,0)
+	Vector N = -V;
+
+	float t = (CO.dot(N) / N.dot(ray.D));
+
+	if (t < 0) return -1.0;
+
+	Vector intersect = ray.O + t * ray.D;
+	double distToCenter = sqrt(intersect.dot(intersect));
+
+	std::cout << intersect << std::endl;
+
+	if (distToCenter > r) return -1.0;
+	
+	return t;
 }
