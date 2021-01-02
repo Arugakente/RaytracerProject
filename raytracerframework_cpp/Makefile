@@ -7,17 +7,17 @@
 ### MACROS
 
 # GNU (everywhere)
-CPP = g++ -g -Wall
+CPP = g++ -std=c++17 -g -Wall -D_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR
 
 # GNU (faster)
 #CPP = g++ -O5 -Wall -fomit-frame-pointer -ffast-math 
 
 LIBS = -lm
 
-EXECUTABLE = ray
+EXECUTABLE = ../ray
 
 OBJS = main.o raytracer.o sphere.o light.o material.o \
-	image.o triple.o lodepng.o scene.o
+	image.o triple.o lodepng.o scene.o torus.o deg4solver.o object.o rMatrix.o cone.o
 
 YAMLOBJS = $(subst .cpp,.o,$(wildcard yaml/*.cpp))
 

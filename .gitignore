@@ -34,3 +34,7 @@ raytracerframework_cpp/yaml
 *.exe
 *.out
 *.app
+
+.DS_Store
+
+ray
