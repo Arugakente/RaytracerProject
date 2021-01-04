@@ -79,7 +79,6 @@ Hit Cone::intersect(const Ray &ray)
 	if (h_intersect < 0. || h_intersect > h) {
 		if (t3 > 0)
 		{
-			std::cout << "test" << std::endl;
 			t = t3;
 			return Hit(t, removeTransformation(V));
 		}
