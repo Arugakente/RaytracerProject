@@ -1,3 +1,8 @@
+//    
+//  Students:
+//    Guillaume Gosset
+//    Quentin Lasota
+//
 /*
  *  Roots3And4.c
  *

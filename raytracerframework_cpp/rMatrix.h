@@ -1,3 +1,8 @@
+//    
+//  Students:
+//    Guillaume Gosset
+//    Quentin Lasota
+//
 #pragma once
 #include<cmath>
 #include "triple.h"

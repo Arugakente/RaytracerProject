@@ -48,12 +48,12 @@ Hit Cone::intersect(const Ray &ray)
 	if (disc < 0.0) {
 		return Hit::NO_HIT();
 	}
-	float t1 = (-b - sqrt(disc)) / (2.0*a);
-	float t2 = (-b + sqrt(disc)) / (2.0*a);
+	double t1 = (-b - sqrt(disc)) / (2.0*a);
+	double t2 = (-b + sqrt(disc)) / (2.0*a);
 
-	float t3 = solveDisc(TransformedRay, V); //disc handling
+	double t3 = solveDisc(TransformedRay, V); //disc handling
 
-	float t = t1;
+	double t = t1;
 	if (t < 0.0 || (t2 > 0.0 && t2 < t)) t = t2;
 	if (t < 0.0) {
 		return Hit::NO_HIT();
@@ -97,7 +97,7 @@ double Cone::solveDisc(const Ray &ray, Vector V) {
 	Vector CO = -ray.O; //C - ray.O with C = (0,0,0)
 	Vector N = -V;
 
-	float t = (CO.dot(N) / N.dot(ray.D));
+	double t = (CO.dot(N) / N.dot(ray.D));
 
 	if (t < 0) return -1.0;
 

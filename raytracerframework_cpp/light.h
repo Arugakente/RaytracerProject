@@ -9,6 +9,10 @@
 //    Maarten Everts
 //    Jasper van de Gronde
 //    adjustment of Hit class by Olivier Wavrin
+//    
+//  Students:
+//    Guillaume Gosset
+//    Quentin Lasota
 //
 //  This framework is inspired by and uses code of the raytracer framework of 
 //  Bert Freudenberg that can be found at

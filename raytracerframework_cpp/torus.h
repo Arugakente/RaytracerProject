@@ -9,6 +9,10 @@
 //  Authors:
 //    Maarten Everts
 //    Jasper van de Gronde
+//    
+//  Students:
+//    Guillaume Gosset
+//    Quentin Lasota
 //
 //  This framework is inspired by and uses code of the raytracer framework of 
 //  Bert Freudenberg that can be found at

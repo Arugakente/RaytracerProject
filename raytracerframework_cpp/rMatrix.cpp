@@ -1,3 +1,8 @@
+//    
+//  Students:
+//    Guillaume Gosset
+//    Quentin Lasota
+//
 #include "rMatrix.h"
 
 Vector rMatrix::rotate(Vector rotated)

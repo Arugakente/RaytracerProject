@@ -1,3 +1,9 @@
+//    
+//  Students:
+//    Guillaume Gosset
+//    Quentin Lasota
+//
+
 #pragma once
 
 //constants from computation library

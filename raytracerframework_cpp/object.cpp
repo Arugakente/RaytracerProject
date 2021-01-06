@@ -1,3 +1,9 @@
+//    
+//  Students:
+//    Guillaume Gosset
+//    Quentin Lasota
+//
+
 #include "object.h"
 
 Ray Object::transform(const Ray& transformed)
