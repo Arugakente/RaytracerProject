@@ -100,7 +100,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		//computation of reflexion color:
 		Color reflexionColor = Color(0.0, 0.0, 0.0);
-		if(material->ks != 0.0 && currentReflexion<2)
+		if(material->ks != 0.0 && currentReflexion<5)
 		{
 			Vector ReflexionRay = 2*(V.dot(N))*N-V;
 			ReflexionRay.normalize();

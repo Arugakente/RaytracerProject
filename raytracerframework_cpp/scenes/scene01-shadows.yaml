@@ -12,11 +12,12 @@
 #  The example scene description should largely speak for itself. By now
 #  it should be clear that the #-character can be used to insert comments.
 
-RenderMode: "phong"
 
 Eye: [200,200,1000]  
 
+RenderMode: "phong"
 Shadows: true
+MaxRecursionDepth: 2
 
 Lights:
 - position: [-200,600,1500]

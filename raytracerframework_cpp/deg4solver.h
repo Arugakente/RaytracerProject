@@ -17,10 +17,10 @@
 #define	    IsZero(x)	((x) > -EQN_EPS && (x) < EQN_EPS)
 
 #ifdef NOCBRT
-#define     cbrt(x)     ((x) > 0.0 ? pow((double)(x), 1.0/3.0) : \
-                          ((x) < 0.0 ? -pow((double)-(x), 1.0/3.0) : 0.0))
+#define     cbrt(x)     ((x) > 0.0 ? pow((long double)(x), 1.0/3.0) : \
+                          ((x) < 0.0 ? -pow((long double)-(x), 1.0/3.0) : 0.0))
 #endif
 
-int SolveQuadric(double c[ 3 ],double s[ 2 ]);
-int SolveCubic(double c [ 4 ],double s[ 3 ]);
-int SolveQuartic(double c[ 5 ],double s[ 4 ]);
+int SolveQuadric(long double c[ 3 ],long double s[ 2 ]);
+int SolveCubic(long double c [ 4 ],long double s[ 3 ]);
+int SolveQuartic(long double c[ 5 ],long double s[ 4 ]);

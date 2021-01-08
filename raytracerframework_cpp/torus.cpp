@@ -33,14 +33,14 @@ Hit Torus::intersect(const Ray &ray)
     //transforming ray to to match actual torus position.
 	Ray TransformedRay = transform(ray);
 
-	double components[5];	// coefficient array for the quartic equation
-	double solutions[4];
+	long double components[5];	// coefficient array for the quartic equation
+	long double solutions[4];
 
     //fourth order equation solving
-	double dotProdRayDir = TransformedRay.D.dot(TransformedRay.D);
-    double dotOriginMinRadiuses = TransformedRay.O.dot(TransformedRay.O)-(r*r+R*R);
-	double originDotDirection = TransformedRay.O.dot(TransformedRay.D);
-	double Rsquaredmultiplied = 4.0*R*R;
+	long double dotProdRayDir = TransformedRay.D.dot(TransformedRay.D);
+    long double dotOriginMinRadiuses = TransformedRay.O.dot(TransformedRay.O)-(r*r+R*R);
+	long double originDotDirection = TransformedRay.O.dot(TransformedRay.D);
+	long double Rsquaredmultiplied = 4.0*R*R;
 
     components[0] = dotOriginMinRadiuses*dotOriginMinRadiuses-Rsquaredmultiplied*(r*r-TransformedRay.O.y*TransformedRay.O.y);
     components[1] = 4.0*dotOriginMinRadiuses*originDotDirection+2.0*Rsquaredmultiplied*TransformedRay.O.y*TransformedRay.D.y;
@@ -50,7 +50,7 @@ Hit Torus::intersect(const Ray &ray)
 
     int rootCount = SolveQuartic(components,solutions);
 
-    double t = numeric_limits<double>::max();
+    long double t = numeric_limits<double>::max();
 
     bool intersected = false;
 
@@ -69,8 +69,8 @@ Hit Torus::intersect(const Ray &ray)
     }
 
     Point contact = (TransformedRay.O+(TransformedRay.D*t));
-    double squaredRadiuses = r*r+R*R;
-    double dotContact = contact.dot(contact);
+    long double squaredRadiuses = r*r+R*R;
+    long double dotContact = contact.dot(contact);
 
     Vector multiplier(dotContact-squaredRadiuses,dotContact-squaredRadiuses+2*R*R,dotContact-squaredRadiuses);
 
