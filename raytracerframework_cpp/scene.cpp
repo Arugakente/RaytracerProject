@@ -92,7 +92,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 			auto obstacle = getNearestIntersectedObj(Ray(hit, L));
 			double t = obstacle.first.t;
 
-			if (!shadows || t <= 0 || t > (light->position - hit).length()) {
+			if (!shadows || !obstacle.second || t > (light->position - hit).length()) {
 				double cosineDiff = L.dot(N);
 				double cosineSpec = R.dot(V);
 				if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
