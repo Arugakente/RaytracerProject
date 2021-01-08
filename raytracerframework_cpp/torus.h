@@ -27,12 +27,12 @@
 class Torus : public Object
 {
 public:
-    Torus(Point position,Triple rotation ,double r,double R) : Object(position,rotation), r(r), R(R) { }
+    Torus(Point position,Triple rotation ,long double r,long double R) : Object(position,rotation), r(r), R(R) { }
 
     virtual Hit intersect(const Ray &ray);
 
-    const double r;
-    const double R;
+    const long double r;
+    const long double R;
 };
 
 #endif /* end of include guard: TORUS_H_115209AE */

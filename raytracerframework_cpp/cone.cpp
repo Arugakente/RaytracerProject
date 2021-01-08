@@ -33,27 +33,27 @@ Hit Cone::intersect(const Ray &ray)
 	Point C = Point(0, h, 0); //translation handled by transform()
 	Vector CO = (Vector)(TransformedRay.O - C);
 
-	double DdotV = TransformedRay.D.dot(V);
-	double COdotV = CO.dot(V);
-	double theta = atan(r / h);
-	double cosThetaSquared = cos(theta) * cos(theta);
+	long double DdotV = TransformedRay.D.dot(V);
+	long double COdotV = CO.dot(V);
+	long double theta = atan(r / h);
+	long double cosThetaSquared = cos(theta) * cos(theta);
 
 	//second order equation solving
-	double a = DdotV * DdotV - cosThetaSquared;
-	double b = 2 * (DdotV * COdotV - TransformedRay.D.dot(CO) * cosThetaSquared);
-	double c = COdotV * COdotV - CO.dot(CO) * cosThetaSquared;
+	long double a = DdotV * DdotV - cosThetaSquared;
+	long double b = 2 * (DdotV * COdotV - TransformedRay.D.dot(CO) * cosThetaSquared);
+	long double c = COdotV * COdotV - CO.dot(CO) * cosThetaSquared;
 
-	double disc = b * b - 4.0*a*c;
+	long double disc = b * b - 4.0*a*c;
 
 	if (disc < 0.0) {
 		return Hit::NO_HIT();
 	}
-	double t1 = (-b - sqrt(disc)) / (2.0*a);
-	double t2 = (-b + sqrt(disc)) / (2.0*a);
+	long double t1 = (-b - sqrt(disc)) / (2.0*a);
+	long double t2 = (-b + sqrt(disc)) / (2.0*a);
 
-	double t3 = solveDisc(TransformedRay, V); //disc handling
+	long double t3 = solveDisc(TransformedRay, V); //disc handling
 
-	double t = t1;
+	long double t = t1;
 	if (t < 0.0 || (t2 > 0.0 && t2 < t)) t = t2;
 	if (t < 0.0) {
 		return Hit::NO_HIT();
@@ -61,7 +61,7 @@ Hit Cone::intersect(const Ray &ray)
 
 	Point intersect = TransformedRay.O + t * TransformedRay.D;
 	Vector CP = ((Vector)(intersect - C));
-	double h_intersect = CP.dot(V);
+	long double h_intersect = CP.dot(V);
 
 	if (h_intersect < 0.) {
 
@@ -86,23 +86,23 @@ Hit Cone::intersect(const Ray &ray)
 	}
 
 	Vector N = (CP * V.dot(CP) / CP.dot(CP) - V);
-	N = removeTransformation(N);
 	N.normalize();
+	N = removeTransformation(N);
 
 	return Hit(t, N);
 }
 
-double Cone::solveDisc(const Ray &ray, Vector V) {
+long double Cone::solveDisc(const Ray &ray, Vector V) {
 
 	Vector CO = -ray.O; //C - ray.O with C = (0,0,0)
 	Vector N = -V;
 
-	double t = (CO.dot(N) / N.dot(ray.D));
+	long double t = (CO.dot(N) / N.dot(ray.D));
 
 	if (t < 0) return -1.0;
 
 	Vector intersect = ray.O + t * ray.D;
-	double distToCenter = sqrt(intersect.dot(intersect));
+	long double distToCenter = sqrt(intersect.dot(intersect));
 
 	if (distToCenter > r) return -1.0;
 

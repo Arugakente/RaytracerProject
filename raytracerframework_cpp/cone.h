@@ -26,12 +26,12 @@
 class Cone : public Object
 {
 public:
-	Cone(Point position, Triple rotation, double r, double h) : Object(position, rotation), r(r), h(h) { }
+	Cone(Point position, Triple rotation, long double r, long double h) : Object(position, rotation), r(r), h(h) { }
 
 	virtual Hit intersect(const Ray &ray);
-	double solveDisc(const Ray &ray, Vector V);
+	long double solveDisc(const Ray &ray, Vector V);
 
-	const double r;
-	const double h;
+	const long double r;
+	const long double h;
 };
 
