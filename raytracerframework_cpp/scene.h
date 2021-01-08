@@ -39,7 +39,7 @@ private:
     Triple eye;
 public:
     std::pair<Hit,Object*> getNearestIntersectedObj(const Ray& ray);
-    Color trace(const Ray &ray,float minRange,float maxRange);
+    Color trace(const Ray &ray,float minRange,float maxRange, int currentReflexion);
         //function used to get the z component associated with the contact point of a ray
         //used to get the far/near limits calculation for z buffer
     float getContactZ(const Ray &ray);

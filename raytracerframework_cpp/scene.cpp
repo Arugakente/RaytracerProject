@@ -28,7 +28,7 @@ std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
 	Object *obj = NULL;
 	for (unsigned int i = 0; i < objects.size(); ++i) {
 		Hit hit(objects[i]->intersect(ray));
-		if (hit.t < min_hit.t) {
+		if (hit.t < min_hit.t && hit.t > 0) {
 			min_hit = hit;
 			obj = objects[i];
 		}
@@ -36,10 +36,10 @@ std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
 	return(std::make_pair(min_hit,obj));
 }
 
-Color Scene::trace(const Ray &ray, float minRange, float maxRange)
+Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentReflexion)
 {
 	// Find hit object and distance
-	auto nearest = getNearestIntersectedObj(ray);
+	std::pair<Hit,Object*> nearest = getNearestIntersectedObj(ray);
 
 	// No hit? Return background color.
 	if (!nearest.second) return Color(0.0, 0.0, 0.0);
@@ -96,6 +96,16 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange)
 			if (cosineSpec >= 0.0) Is += light->color * material->ks * pow(cosineSpec, material->n);
 		}
 
+		//computation of reflexion color:
+		Color reflexionColor = Color(0.0, 0.0, 0.0);
+		if(material->ks != 0.0 && currentReflexion<2)
+		{
+			Vector ReflexionRay = 2*(V.dot(N))*N-V;
+			ReflexionRay.normalize();
+			reflexionColor = trace(Ray(hit,ReflexionRay),minRange,maxRange,currentReflexion+1);
+		}
+		Is += reflexionColor * material->ks;
+
 		color = (Ia + Id) * material->color + Is;
 	}
 
@@ -118,7 +128,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange)
 
 float Scene::getContactZ(const Ray &ray)
 {
-	auto nearest = getNearestIntersectedObj(ray);
+	std::pair<Hit,Object*> nearest = getNearestIntersectedObj(ray);
     return ray.at(nearest.first.t).z;
 }
 
@@ -156,7 +166,7 @@ void Scene::render(Image &img)
         for (int x = 0; x < w; x++) {
             Point pixel(x+0.5, h-1-y+0.5, 0);
             Ray ray(eye, (pixel-eye).normalized());
-            Color col = trace(ray, farPoint, nearPoint);
+            Color col = trace(ray, farPoint, nearPoint,0);
             col.clamp();
             img(x,y) = col;
         }
