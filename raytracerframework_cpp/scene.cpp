@@ -21,9 +21,9 @@
 #include "scene.h"
 #include "material.h"
 
-Color Scene::trace(const Ray &ray, float minRange, float maxRange)
+
+std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
 {
-	// Find hit object and distance
 	Hit min_hit(std::numeric_limits<double>::infinity(), Vector());
 	Object *obj = NULL;
 	for (unsigned int i = 0; i < objects.size(); ++i) {
@@ -33,13 +33,20 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange)
 			obj = objects[i];
 		}
 	}
+	return(std::make_pair(min_hit,obj));
+}
+
+Color Scene::trace(const Ray &ray, float minRange, float maxRange)
+{
+	// Find hit object and distance
+	auto nearest = getNearestIntersectedObj(ray);
 
 	// No hit? Return background color.
-	if (!obj) return Color(0.0, 0.0, 0.0);
+	if (!nearest.second) return Color(0.0, 0.0, 0.0);
 
-	Material *material = obj->material;            //the hit objects material
-	Point hit = ray.at(min_hit.t);                 //the hit point
-	Vector N = min_hit.N;                          //the normal at hit point
+	Material *material = nearest.second->material;            //the hit objects material
+	Point hit = ray.at(nearest.first.t);                 //the hit point
+	Vector N = nearest.first.N;                          //the normal at hit point
 	Vector V = -ray.D;                             //the view vector
 
 
@@ -66,18 +73,22 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange)
 	// Phong ------
 	if (renderMode == phong) 
 	{
+
 		Color Ia = Color(1.0, 1.0, 1.0);
 		Ia *= material->ka;
 
 		Color Id = Color(0.0, 0.0, 0.0);
 		Color Is = Color(0.0, 0.0, 0.0);
 
-		for (auto light : lights) {
+		for (auto light : lights) 
+		{
 			Vector L = light->position - hit;
 			L.normalize();
 
 			Vector R = 2 * (L.dot(N))*N - L;
 			R.normalize();
+
+			//computation of intersection with othe objects(reflexion) and in between lights(shadows)
 
 			double cosineDiff = L.dot(N);
 			double cosineSpec = R.dot(V);
@@ -107,16 +118,8 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange)
 
 float Scene::getContactZ(const Ray &ray)
 {
-    Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
-    Object *obj = NULL;
-    for (unsigned int i = 0; i < objects.size(); ++i) {
-        Hit hit(objects[i]->intersect(ray));
-        if (hit.t<min_hit.t) {
-            min_hit = hit;
-            obj = objects[i];
-        }
-    }
-    return ray.at(min_hit.t).z;
+	auto nearest = getNearestIntersectedObj(ray);
+    return ray.at(nearest.first.t).z;
 }
 
 void Scene::render(Image &img)

@@ -22,6 +22,7 @@
 #define SCENE_H_KNBLQLP6
 
 #include <vector>
+#include <tuple>
 #include "triple.h"
 #include "light.h"
 #include "object.h"
@@ -37,6 +38,7 @@ private:
     std::vector<Light*> lights;
     Triple eye;
 public:
+    std::pair<Hit,Object*> getNearestIntersectedObj(const Ray& ray);
     Color trace(const Ray &ray,float minRange,float maxRange);
         //function used to get the z component associated with the contact point of a ray
         //used to get the far/near limits calculation for z buffer
@@ -46,6 +48,7 @@ public:
     void addLight(Light *l);
 	void setRenderMode(renderMode_t m);
     void setEye(Triple e);
+
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }
 };
