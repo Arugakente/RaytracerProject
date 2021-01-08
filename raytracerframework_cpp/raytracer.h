@@ -35,6 +35,7 @@ private:
     Object* parseObject(const YAML::Node& node);
     Light* parseLight(const YAML::Node& node);
     renderMode_t parseRenderMode(const YAML::Node& node);
+	bool parseShadows(const YAML::Node& node);
 
 public:
     Raytracer() { }

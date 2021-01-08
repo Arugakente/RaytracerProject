@@ -89,11 +89,12 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange)
 			R.normalize();
 
 			//computation of intersection with othe objects(reflexion) and in between lights(shadows)
-
-			double cosineDiff = L.dot(N);
-			double cosineSpec = R.dot(V);
-			if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
-			if (cosineSpec >= 0.0) Is += light->color * material->ks * pow(cosineSpec, material->n);
+			if (!shadows || getNearestIntersectedObj(Ray(hit, -L)).second == nearest.second) {
+				double cosineDiff = L.dot(N);
+				double cosineSpec = R.dot(V);
+				if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
+				if (cosineSpec >= 0.0) Is += light->color * material->ks * pow(cosineSpec, material->n);
+			}
 		}
 
 		color = (Ia + Id) * material->color + Is;
@@ -171,6 +172,11 @@ void Scene::addObject(Object *o)
 void Scene::addLight(Light *l)
 {
     lights.push_back(l);
+}
+
+void Scene::setShadows(bool b) 
+{
+	shadows = b;
 }
 
 void Scene::setRenderMode(renderMode_t m)
