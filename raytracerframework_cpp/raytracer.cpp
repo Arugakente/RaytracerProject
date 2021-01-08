@@ -58,6 +58,13 @@ bool Raytracer::parseShadows(const YAML::Node& node)
 	return node;
 }
 
+int Raytracer::parseMaxRecursionDepth(const YAML::Node& node)
+{
+	int i;
+	node >> i;
+	if (i >= 0 && i <= 20) return i;
+	return 0;
+}
 
 Triple parseTriple(const YAML::Node& node)
 {
@@ -162,6 +169,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			scene->setShadows(parseShadows(doc["Shadows"]));
             scene->setEye(parseTriple(doc["Eye"]));
 			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
+			scene->setMaxRecursionDepth(parseMaxRecursionDepth(doc["MaxRecursionDepth"]));
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];

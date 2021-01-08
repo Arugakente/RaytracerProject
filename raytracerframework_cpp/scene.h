@@ -35,6 +35,7 @@ class Scene
 private:
 	renderMode_t renderMode;
 	bool shadows;
+	int maxRecursionDepth;
     std::vector<Object*> objects;
     std::vector<Light*> lights;
     Triple eye;
@@ -50,6 +51,7 @@ public:
 	void setShadows(bool b);
 	void setRenderMode(renderMode_t m);
     void setEye(Triple e);
+	void setMaxRecursionDepth(int i);
 
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }

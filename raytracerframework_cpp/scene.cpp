@@ -90,7 +90,9 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 			//computation of intersection with othe objects(reflexion) and in between lights(shadows)
 			auto obstacle = getNearestIntersectedObj(Ray(hit, L));
-			if (!shadows || !obstacle.second) {
+			double t = obstacle.first.t;
+
+			if (!shadows || t <= 0 || t > (light->position - hit).length()) {
 				double cosineDiff = L.dot(N);
 				double cosineSpec = R.dot(V);
 				if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
@@ -100,7 +102,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		//computation of reflexion color:
 		Color reflexionColor = Color(0.0, 0.0, 0.0);
-		if(material->ks != 0.0 && currentReflexion<5)
+		if(material->ks != 0.0 && currentReflexion < maxRecursionDepth)
 		{
 			Vector ReflexionRay = 2*(V.dot(N))*N-V;
 			ReflexionRay.normalize();
@@ -193,6 +195,11 @@ void Scene::setShadows(bool b)
 void Scene::setRenderMode(renderMode_t m)
 {
 	renderMode = m;
+}
+
+void Scene::setMaxRecursionDepth(int i)
+{
+	maxRecursionDepth = i;
 }
 
 void Scene::setEye(Triple e)
