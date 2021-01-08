@@ -53,6 +53,12 @@ renderMode_t Raytracer::parseRenderMode(const YAML::Node& node)
         return phong;
 }
 
+bool Raytracer::parseShadows(const YAML::Node& node)
+{
+	return node;
+}
+
+
 Triple parseTriple(const YAML::Node& node)
 {
     Triple t;
@@ -153,6 +159,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
             parser.GetNextDocument(doc);
 
             // Read scene configuration options
+			scene->setShadows(parseShadows(doc["Shadows"]));
             scene->setEye(parseTriple(doc["Eye"]));
 			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
 

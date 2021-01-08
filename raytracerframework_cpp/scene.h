@@ -34,6 +34,7 @@ class Scene
 {
 private:
 	renderMode_t renderMode;
+	bool shadows;
     std::vector<Object*> objects;
     std::vector<Light*> lights;
     Triple eye;
@@ -46,6 +47,7 @@ public:
     void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);
+	void setShadows(bool b);
 	void setRenderMode(renderMode_t m);
     void setEye(Triple e);
 
