@@ -25,11 +25,11 @@
 
 std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
 {
-	Hit min_hit(std::numeric_limits<double>::infinity(), Vector());
+	Hit min_hit(std::numeric_limits<long double>::infinity(), Vector());
 	Object *obj = NULL;
 	for (unsigned int i = 0; i < objects.size(); ++i) {
 		Hit hit(objects[i]->intersect(ray));
-		if (hit.t < min_hit.t && hit.t > 0) {
+		if (hit.t < min_hit.t) {
 			min_hit = hit;
 			obj = objects[i];
 		}
@@ -64,7 +64,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	*        Vector-Vector      vector difference
 	*        Point-Point        yields vector
 	*        Vector.normalize() normalizes vector, returns length
-	*        double*Color        scales each color component (r,g,b)
+	*        long double*Color        scales each color component (r,g,b)
 	*        Color*Color        dito
 	*        pow(a,b)           a to the power of b
 	****************************************************/
@@ -81,50 +81,19 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		Color Id = Color(0.0, 0.0, 0.0);
 		Color Is = Color(0.0, 0.0, 0.0);
 
-		for (auto light : lights) 
-		{
-			Vector L = light->position - hit;
-			L.normalize();
-
-			Vector R = 2 * (L.dot(N))*N - L;
-			R.normalize();
-
-			//computation of intersection with othe objects(reflexion) and in between lights(shadows)
-			auto obstacle = getNearestIntersectedObj(Ray(hit, L));
-			double t = obstacle.first.t;
-
-			if (!shadows || !obstacle.second || t > (light->position - hit).length()) {
-				double cosineDiff = L.dot(N);
-				double cosineSpec = R.dot(V);
-				if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
-				if (cosineSpec >= 0.0) Is += light->color * material->ks * pow(cosineSpec, material->n);
-			}
-		}
-
-		//computation of reflexion and refraction color:
-		Color reflexionColor = Color(0.0, 0.0, 0.0);
 		Color refractionColor = Color(0.0, 0.0, 0.0);
-
-		if (material->ks != 0.0 && currentReflexion < maxRecursionDepth)
-		{
-			Vector ReflexionRay = 2*(V.dot(N))*N-V;
-			ReflexionRay.normalize();
-			reflexionColor = trace(Ray(hit,ReflexionRay),minRange,maxRange,currentReflexion+1);
-		}
-
 		if (material->refract && currentReflexion < maxRecursionDepth) 
 		{
-			Vector Vnorm = -V;
+			Vector Vnorm = ray.D;
 			//Vnorm.normalize();
 			Vector Nnorm = N;
-			//Nnorm.normalize();
 
-			double cosRefract = Vnorm.dot(Nnorm);
+			long double cosRefract = Vnorm.dot(Nnorm);
 			if (cosRefract >  1.0) cosRefract =  1.0;
 			if (cosRefract < -1.0) cosRefract = -1.0;
 
-			double etaIn = 1.0;
-			double etaOut = material->eta;
+			long double etaIn = 1.0;
+			long double etaOut = material->eta;
 
 			if (cosRefract < 0.0) cosRefract = -cosRefract;  //we are getting in the object
 			else {
@@ -132,15 +101,47 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 				Nnorm = -Nnorm;
 			}
 
-			double eta = etaIn / etaOut;
-			double k = 1 - eta * eta * (1 - cosRefract * cosRefract);
-			
+			long double eta = etaIn / etaOut;
+			long double k = 1 - eta * eta * (1 - cosRefract * cosRefract);
+
 			Vector RefractionRay = Vector(0.0, 0.0, 0.0);
-			if (k > 0) {
+			if (k >= 0) {
 				RefractionRay = eta * Vnorm + (eta * cosRefract - sqrt(k)) * Nnorm;
 				RefractionRay.normalize();
-				refractionColor = trace(Ray(hit, RefractionRay), minRange, maxRange, currentReflexion+1);
+				refractionColor = trace(Ray(hit+RefractionRay*0.01, RefractionRay), minRange, maxRange, currentReflexion+1);
 			}
+		}
+		else if(!material->refract)
+		{
+			for (auto light : lights) 
+			{
+				Vector L = light->position - hit;
+				L.normalize();
+
+				Vector R = 2 * (L.dot(N))*N - L;
+				R.normalize();
+
+				//computation of intersection with othe objects(reflexion) and in between lights(shadows)
+				auto obstacle = getNearestIntersectedObj(Ray(hit+L*0.01, L));
+				long double t = obstacle.first.t;
+
+				if (!shadows || !obstacle.second || t > (light->position - hit).length()) {
+					long double cosineDiff = L.dot(N);
+					long double cosineSpec = R.dot(V);
+					if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
+					if (cosineSpec >= 0.0) Is += light->color * material->ks * pow(cosineSpec, material->n);
+				}
+			}
+		}
+
+		//computation of reflexion and refraction color:
+		Color reflexionColor = Color(0.0, 0.0, 0.0);
+
+		if (material->ks != 0.0 && currentReflexion < maxRecursionDepth)
+		{
+			Vector ReflexionRay = 2*(V.dot(N))*N-V;
+			ReflexionRay.normalize();
+			reflexionColor = trace(Ray(hit+ReflexionRay*0.01,ReflexionRay),minRange,maxRange,currentReflexion+1);
 		}
 
 		Is += reflexionColor * material->ks;

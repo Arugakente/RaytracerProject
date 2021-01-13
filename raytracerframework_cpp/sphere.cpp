@@ -45,18 +45,16 @@ Hit Sphere::intersect(const Ray &ray)
     Ray TransformedRay = transform(ray);
 
 	//second order equation solving
-	double a = TransformedRay.D.dot(TransformedRay.D);
-	double b = 2.0 * TransformedRay.O.dot(TransformedRay.D);
-	double c = TransformedRay.O.dot(TransformedRay.O) - r*r;
+	long double a = TransformedRay.D.dot(TransformedRay.D);
+	long double b = 2.0 * TransformedRay.O.dot(TransformedRay.D);
+	long double c = TransformedRay.O.dot(TransformedRay.O) - r*r;
 
 
-	double disc = b*b - 4.0*a*c;
+	long double disc = b*b - 4.0*a*c;
 
 	if (disc < 0) {
 		return Hit::NO_HIT();
 	}
-
-	double t = (-b - sqrt(disc)) / (2.0*a);
 	
     /****************************************************
     * RT1.2: NORMAL CALCULATION
@@ -67,10 +65,20 @@ Hit Sphere::intersect(const Ray &ray)
     * Insert calculation of the sphere's normal at the intersection point.
     ****************************************************/
 
+    double t;
+    double t1 = (-b - sqrt(disc)) / (2.0*a);
+    double t2 = (-b + sqrt(disc)) / (2.0*a);
+
+    if (t1 < t2 && t1 > 0.0) t = t1;
+    else {
+        if (t2 > 0.0) t = t2;
+        else return Hit::NO_HIT();
+    }
+
 	Point intersect = ray.O + t * ray.D;
 	
 	Vector N = (Vector) (intersect - position);
 	N.normalize();
-
+    
     return Hit(t,N);
 }

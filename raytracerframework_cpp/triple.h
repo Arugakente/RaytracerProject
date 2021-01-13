@@ -25,7 +25,7 @@ using namespace std;
 
 class Triple {
 public:
-    explicit Triple(double X = 0, double Y = 0, double Z = 0)
+    explicit Triple(long double X = 0, long double Y = 0, long double Z = 0)
         : x(X), y(Y), z(Z)
     {
     }
@@ -35,12 +35,12 @@ public:
         return Triple(x+t.x, y+t.y, z+t.z);
     }
 
-    Triple operator+(double f) const
+    Triple operator+(long double f) const
     {
         return Triple(x+f, y+f, z+f);
     }
 
-    friend Triple operator+(double f, const Triple &t)
+    friend Triple operator+(long double f, const Triple &t)
     {
         return Triple(f+t.x, f+t.y, f+t.z);
     }
@@ -55,12 +55,12 @@ public:
         return Triple(x-t.x, y-t.y, z-t.z);
     }
 
-    Triple operator-(double f) const
+    Triple operator-(long double f) const
     {
         return Triple(x-f, y-f, z-f);
     }
 
-    friend Triple operator-(double f, const Triple &t)
+    friend Triple operator-(long double f, const Triple &t)
     {
         return Triple(f-t.x, f-t.y, f-t.z);
     }
@@ -70,19 +70,19 @@ public:
         return Triple(x*t.x,y*t.y,z*t.z);
     }
 
-    Triple operator*(double f) const
+    Triple operator*(long double f) const
     {
         return Triple(x*f, y*f, z*f);
     }
 
-    friend Triple operator*(double f, const Triple &t)
+    friend Triple operator*(long double f, const Triple &t)
     {
         return Triple(f*t.x, f*t.y, f*t.z);
     }
 
-    Triple operator/(double f) const
+    Triple operator/(long double f) const
     {
-        double invf = 1.0/f;
+        long double invf = 1.0/f;
         return Triple(x*invf, y*invf, z*invf);
     }
 
@@ -94,7 +94,7 @@ public:
         return *this;
     }
 
-    Triple& operator+=(double f)
+    Triple& operator+=(long double f)
     {
         x += f;
         y += f;
@@ -110,7 +110,7 @@ public:
         return *this;
     }
 
-    Triple& operator-=(double f)
+    Triple& operator-=(long double f)
     {
         x -= f;
         y -= f;
@@ -118,7 +118,7 @@ public:
         return *this;
     }
 
-    Triple& operator*=(const double f)
+    Triple& operator*=(const long double f)
     {
         x *= f;
         y *= f;
@@ -126,9 +126,9 @@ public:
         return *this;
     }
 
-    Triple& operator/=(const double f)
+    Triple& operator/=(const long double f)
     {
-        double invf = 1.0/f;
+        long double invf = 1.0/f;
         x *= invf;
         y *= invf;
         z *= invf;
@@ -136,7 +136,7 @@ public:
     }
 
 
-    double dot(const Triple &t) const
+    long double dot(const Triple &t) const
     {
         return x*t.x + y*t.y + z*t.z;
     }
@@ -148,12 +148,12 @@ public:
             x*t.y - y*t.x);
     }
 
-    double length() const
+    long double length() const
     {
         return sqrt(length_2());
     }
 
-    double length_2() const
+    long double length_2() const
     {
         return x*x + y*y + z*z;
     }
@@ -165,8 +165,8 @@ public:
 
     void normalize()
     {
-        double l = length();
-        double invl = 1/l;
+        long double l = length();
+        long double invl = 1/l;
         x *= invl;
         y *= invl;
         z *= invl;
@@ -176,29 +176,29 @@ public:
     friend ostream& operator<<(ostream &s, const Triple &v);
 
     // Functions for when used as a Color:
-    void set(double f)
+    void set(long double f)
     {
         r = g = b = f;
     }
 
-    void set(double f, double maxValue)
+    void set(long double f, long double maxValue)
     {
         set(f/maxValue);
     }
 
-    void set(double red, double green, double blue)
+    void set(long double red, long double green, long double blue)
     {
         r = red;
         g = green;
         b = blue;
     }
 
-    void set(double r, double g, double b, double maxValue)
+    void set(long double r, long double g, long double b, long double maxValue)
     {
         set(r/maxValue,g/maxValue,b/maxValue);
     }
 
-    void clamp(double maxValue = 1.0)
+    void clamp(long double maxValue = 1.0)
     {
         if (r > maxValue) r = maxValue;
         if (g > maxValue) g = maxValue;
@@ -206,16 +206,16 @@ public:
     }
 
     union {
-        double data[3];
+        long double data[3];
         struct {
-            double x;
-            double y;
-            double z;
+            long double x;
+            long double y;
+            long double z;
         };
         struct {
-            double r;
-            double g;
-            double b;
+            long double r;
+            long double g;
+            long double b;
         };
     };
 };

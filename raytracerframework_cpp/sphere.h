@@ -26,11 +26,11 @@
 class Sphere : public Object
 {
 public:
-    Sphere(Point position,Triple rotation,double r) : Object(position,rotation), r(r) { }
+    Sphere(Point position,Triple rotation,long double r) : Object(position,rotation), r(r) { }
 
     virtual Hit intersect(const Ray &ray);
     
-    const double r;
+    const long double r;
 };
 
 #endif /* end of include guard: SPHERE_H_115209AE */
