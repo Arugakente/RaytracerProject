@@ -25,6 +25,7 @@ Objects:
     kd: 0.9
     ks: 0.3
     n: 16
+    refract: false
 - type: torus #1
   position: [210,195,170]
   rotation: [70.0,85.0,0.0]
@@ -36,6 +37,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 128
+    refract: false
 - type: torus #2
   position: [225,165,190]
   rotation: [40.0,20.0,70.0]
@@ -47,6 +49,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 128
+    refract: false
 - type: torus #3
   position: [230,135,210]
   rotation: [60.0,72.0,-20.0]
@@ -58,6 +61,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 128
+    refract: false
 - type: torus #4
   position: [280,145,230]
   rotation: [80.0,100.0,70.0]
@@ -69,6 +73,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 128
+    refract: false
 - type: torus #5
   position: [310,185,250]
   rotation: [40.0,0.0,70.0]
@@ -80,6 +85,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 128
+    refract: false
 - type: torus #6
   position: [340,225,270]
   rotation: [165.0,72.0,-20.0]
@@ -91,6 +97,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 128
+    refract: false
 - type: cone #1
   position: [190,280,70]
   rotation: [-20.0,0.0,-30.0]
@@ -102,6 +109,7 @@ Objects:
     kd: 0.8
     ks: 0.7
     n: 32
+    refract: false
 - type: cone #2
   position: [115,290,130]
   rotation: [20.0,0.0,20.0]
@@ -113,6 +121,7 @@ Objects:
     kd: 0.8
     ks: 0.7
     n: 32
+    refract: false
 - type: cone #3
   position: [70,210,160]
   rotation: [80.0,0.0,60.0]
@@ -124,6 +133,7 @@ Objects:
     kd: 0.8
     ks: 0.7
     n: 32
+    refract: false
 - type: cone #4
   position: [110,135,130]
   rotation: [160.0,0.0,30.0]
@@ -135,6 +145,7 @@ Objects:
     kd: 0.8
     ks: 0.7
     n: 32
+    refract: false
 - type: cone #5
   position: [185,130,70]
   rotation: [200.0,0.0,-20.0]
@@ -146,6 +157,7 @@ Objects:
     kd: 0.8
     ks: 0.7
     n: 32
+    refract: false
 - type: cone #6
   position: [230,220,40]
   rotation: [-100.0,0.0,-60.0]
@@ -157,3 +169,4 @@ Objects:
     kd: 0.8
     ks: 0.7
     n: 32
+    refract: false

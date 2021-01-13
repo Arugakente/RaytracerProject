@@ -20,6 +20,7 @@ Objects:
     kd: 0.7
     ks: 0.0
     n: 64
+    refract: false
 - type: sphere
   position: [210,270,-300]
   rotation: [0.0,0.0,0.0]
@@ -30,6 +31,7 @@ Objects:
     kd: 0.3
     ks: 0.5
     n: 8
+    refract: false
 - type: sphere
   position: [290,170,-150]
   rotation: [0.0,0.0,0.0]
@@ -40,6 +42,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 32
+    refract: false
 - type: sphere
   position: [290,230,-150]
   rotation: [0.0,0.0,0.0]
@@ -50,6 +53,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 32
+    refract: false
 - type: sphere
   position: [290,170,-0]
   rotation: [0.0,0.0,0.0]
@@ -60,6 +64,7 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 32
+    refract: false
 - type: sphere
   position: [140,220,-400]
   rotation: [0.0,0.0,0.0]
@@ -70,6 +75,7 @@ Objects:
     kd: 0.8
     ks: 0.0
     n: 1
+    refract: false
 - type: sphere
   position: [110,130,-200]
   rotation: [0.0,0.0,0.0]
@@ -80,6 +86,7 @@ Objects:
     kd: 0.06
     ks: 0.9
     n: 32
+    refract: false
 - type: sphere
   position: [180,180,-800]
   rotation: [0.0,0.0,0.0]
@@ -90,3 +97,4 @@ Objects:
     kd: 0.5
     ks: 0.3
     n: 32
+    refract: false
