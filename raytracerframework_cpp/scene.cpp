@@ -20,6 +20,7 @@
 
 #include "scene.h"
 #include "material.h"
+#include <algorithm>
 
 
 std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
@@ -44,10 +45,10 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	// No hit? Return background color.
 	if (!nearest.second) return Color(0.0, 0.0, 0.0);
 
-	Material *material = nearest.second->material;            //the hit objects material
-	Point hit = ray.at(nearest.first.t);                 //the hit point
-	Vector N = nearest.first.N;                          //the normal at hit point
-	Vector V = -ray.D;                             //the view vector
+	Material *material = nearest.second->material;  //the hit objects material
+	Point hit = ray.at(nearest.first.t);            //the hit point
+	Vector N = nearest.first.N;                     //the normal at hit point
+	Vector V = -ray.D;                              //the view vector
 
 
 	/****************************************************
@@ -100,13 +101,46 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 			}
 		}
 
-		//computation of reflexion color:
+		//computation of reflexion and refraction color:
 		Color reflexionColor = Color(0.0, 0.0, 0.0);
-		if(material->ks != 0.0 && currentReflexion < maxRecursionDepth)
+		Color refractionColor = Color(0.0, 0.0, 0.0);
+
+		if (material->ks != 0.0 && currentReflexion < maxRecursionDepth)
 		{
 			Vector ReflexionRay = 2*(V.dot(N))*N-V;
 			ReflexionRay.normalize();
 			reflexionColor = trace(Ray(hit,ReflexionRay),minRange,maxRange,currentReflexion+1);
+		}
+
+		if (material->refract && currentReflexion < maxRecursionDepth) 
+		{
+			Vector Vnorm = -V;
+			//Vnorm.normalize();
+			Vector Nnorm = N;
+			//Nnorm.normalize();
+
+			double cosRefract = Vnorm.dot(Nnorm);
+			if (cosRefract >  1.0) cosRefract =  1.0;
+			if (cosRefract < -1.0) cosRefract = -1.0;
+
+			double etaIn = 1.0;
+			double etaOut = material->eta;
+
+			if (cosRefract < 0.0) cosRefract = -cosRefract;  //we are getting in the object
+			else {
+				std::swap(etaIn, etaOut);  //we are getting out of the object
+				Nnorm = -Nnorm;
+			}
+
+			double eta = etaIn / etaOut;
+			double k = 1 - eta * eta * (1 - cosRefract * cosRefract);
+			
+			Vector RefractionRay = Vector(0.0, 0.0, 0.0);
+			if (k > 0) {
+				RefractionRay = eta * Vnorm + (eta * cosRefract - sqrt(k)) * Nnorm;
+				RefractionRay.normalize();
+				refractionColor = trace(Ray(hit, RefractionRay), minRange, maxRange, currentReflexion+1);
+			}
 		}
 
 		Is += reflexionColor * material->ks;
