@@ -108,9 +108,13 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 			ReflexionRay.normalize();
 			reflexionColor = trace(Ray(hit,ReflexionRay),minRange,maxRange,currentReflexion+1);
 		}
+
 		Is += reflexionColor * material->ks;
 
-		color = (Ia + Id) * material->color + Is;
+		if(material->refract)
+			color = refractionColor + Is;
+		else
+			color = (Ia + Id) * material->color + Is;
 	}
 
 	// zBuffer ------
