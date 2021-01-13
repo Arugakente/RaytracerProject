@@ -1,8 +1,7 @@
 @echo off
-RayTracer.exe scene01-phong.yaml
-RayTracer.exe scene01-zbuffer.yaml
-RayTracer.exe scene01-normal.yaml
-RayTracer.exe sceneAddGeometry.yaml
-RayTracer.exe sceneAddGeometry-normal.yaml
-RayTracer.exe sceneCustom.yaml
-RayTracer.exe sceneCustom-zbuffer.yaml
+RayTracer.exe scene01-shadows.yaml
+RayTracer.exe scene01-lights-shadows.yaml
+RayTracer.exe scene01-reflect-lights-shadows.yaml
+RayTracer.exe scene01-refract-reflect-lights-shadows.yaml
+
+
