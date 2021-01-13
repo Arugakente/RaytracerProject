@@ -25,7 +25,8 @@ Objects:
     kd: 0.9
     ks: 0.3
     n: 16
-    refract: false
+    refract: true
+    eta: 1.5
 - type: torus #1
   position: [210,195,170]
   rotation: [70.0,85.0,0.0]
