@@ -44,7 +44,8 @@ private:
 	bool shadows;
 
 	int maxRecursionDepth;
-
+    int superSamplingFactor;
+	
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 public:
