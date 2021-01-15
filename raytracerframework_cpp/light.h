@@ -29,10 +29,11 @@
 class Light
 {
 public:
-    Light(Point pos,Color c) : position(pos), color(c)
+    Light(Point pos,Triple s,Color c) : position(pos), size(s),color(c)
     { }
 
     Point position;
+    Triple size;
     Color color;
 };
 

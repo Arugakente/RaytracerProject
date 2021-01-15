@@ -114,6 +114,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		for (auto light : lights)
 		{
+			
 			Vector L = light->position - hit;
 			L.normalize();
 
@@ -211,17 +212,9 @@ void Scene::render(Image &img)
         nearPoint -= 50;
     }
 
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            Point pixel(x+0.5, h-1-y+0.5, 0);
-			Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
-            Color col = trace(ray, farPoint, nearPoint,0);
-            col.clamp();
-            img(x,y) = col;
-
 	float offsetX = 0.5/superSamplingFactor;
 	float offsetY = 0.5/superSamplingFactor;
-	
+
 	#pragma omp parallel for
     for (int y = 0; y < h; y++) 
 	{
@@ -234,7 +227,7 @@ void Scene::render(Image &img)
 				for(int xx = 1; xx<=superSamplingFactor;xx++)
 				{
             		Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
-            		Ray ray(eye, (pixel-eye).normalized());
+					Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
             		Color col = trace(ray, farPoint, nearPoint,0);
             		col.clamp();
             		sumColor += col;
@@ -316,4 +309,9 @@ int Scene::getHeight()
 void Scene::setSuperSamplingFactor(int f)
 {
 	superSamplingFactor = f;
+}
+
+void Scene::setLightSampling(int s)
+{
+	lightSampling = s;
 }

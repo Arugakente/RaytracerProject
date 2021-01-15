@@ -170,9 +170,18 @@ Light* Raytracer::parseLight(const YAML::Node& node)
 {
     Point position;
     node["position"] >> position;
+    Triple size;
+    try
+    {
+        node["size"] >> size;
+    }
+    catch(std::exception e)
+    {
+        size = Triple(0.0,0.0,0.0);
+    }
     Color color;
     node["color"] >> color;
-    return new Light(position,color);
+    return new Light(position,size,color);
 }
 
 int Raytracer::parseSSfactor(const YAML::Node& node)
@@ -212,11 +221,6 @@ bool Raytracer::readScene(const std::string& inputFilename)
 				scene->setHasCamera(false);
 				scene->setEye(parseTriple(doc["Eye"]));
 			}
-			scene->setShadows(parseShadows(doc["Shadows"]));
-            scene->setEye(parseTriple(doc["Eye"]));
-			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
-			scene->setMaxRecursionDepth(parseMaxRecursionDepth(doc["MaxRecursionDepth"]));
-            scene->setSuperSamplingFactor(parseSSfactor(doc["SuperSampling"]));
 
 			try { 
 				scene->setShadows(parseShadows(doc["Shadows"])); 
@@ -242,6 +246,24 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			catch (std::exception e) {
 				scene->setMaxRecursionDepth(0);
 			}
+
+            try
+            {
+                scene->setSuperSamplingFactor(parseSSfactor(doc["SuperSampling"]));
+            }
+            catch(std::exception e)
+            {
+                scene->setSuperSamplingFactor(1);
+            }
+
+            try
+            {
+                scene->setLightSampling(doc["lightsSamples"]);
+            }
+            catch(std::exception e)
+            {
+                scene->setLightSampling(1);
+            }
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];

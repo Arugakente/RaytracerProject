@@ -20,14 +20,18 @@ Camera:
 
 Shadows: true
 MaxRecursionDepth: 2
-#SuperSampling:
-#  factor: 4
+SuperSampling:
+  factor: 1
 
 Lights:
 - position: [-200,600,1500]
+  size: [30.0,30.0,30.0]
   color: [0.4,0.4,0.8]
 - position: [600,600,1500]
+  size: [30.0,30.0,30.0]
   color: [0.8,0.8,0.4]
+
+lightsSamples: 3
 
 Objects:
 - type: sphere

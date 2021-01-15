@@ -46,6 +46,8 @@ private:
 
 	int maxRecursionDepth;
     int superSamplingFactor;
+
+    int lightSampling;
 	
     std::vector<Object*> objects;
     std::vector<Light*> lights;
@@ -68,6 +70,7 @@ public:
 	void setHasCamera(bool b);
     void setSuperSamplingFactor(int f);
 	void setMaxRecursionDepth(int i);
+    void setLightSampling(int s);
 
 	int getWidth();
 	int getHeight();
