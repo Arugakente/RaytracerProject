@@ -13,6 +13,8 @@
 #  it should be clear that the #-character can be used to insert comments.
 
 RenderMode: "zbuffer"
+far : 0
+near : 400
 
 Eye: [200,200,1000]  
 
