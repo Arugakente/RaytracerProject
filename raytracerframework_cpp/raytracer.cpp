@@ -146,6 +146,12 @@ Light* Raytracer::parseLight(const YAML::Node& node)
     return new Light(position,color);
 }
 
+int Raytracer::parseSSfactor(const YAML::Node& node)
+{
+    int factor;
+    node["factor"] >> factor;
+    return factor;
+}
 /*
 * Read a scene from file
 */
@@ -172,6 +178,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
             scene->setEye(parseTriple(doc["Eye"]));
 			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
 			scene->setMaxRecursionDepth(parseMaxRecursionDepth(doc["MaxRecursionDepth"]));
+            scene->setSuperSamplingFactor(parseSSfactor(doc["SuperSampling"]));
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];

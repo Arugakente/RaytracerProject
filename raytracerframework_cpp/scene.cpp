@@ -204,13 +204,29 @@ void Scene::render(Image &img)
         nearPoint -= 50;
     }
 
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            Point pixel(x+0.5, h-1-y+0.5, 0);
-            Ray ray(eye, (pixel-eye).normalized());
-            Color col = trace(ray, farPoint, nearPoint,0);
-            col.clamp();
-            img(x,y) = col;
+
+	float offsetX = 0.5/superSamplingFactor;
+	float offsetY = 0.5/superSamplingFactor;
+	
+	#pragma omp parallel for
+    for (int y = 0; y < h; y++) 
+	{
+        for (int x = 0; x < w; x++) 
+		{
+			Color sumColor = Color(0.0,0.0,0.0);
+
+			for(int yy = 1;yy<=superSamplingFactor;yy++)
+			{
+				for(int xx = 1; xx<=superSamplingFactor;xx++)
+				{
+            		Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
+            		Ray ray(eye, (pixel-eye).normalized());
+            		Color col = trace(ray, farPoint, nearPoint,0);
+            		col.clamp();
+            		sumColor += col;
+				}
+			}
+			img(x,y) = sumColor/(superSamplingFactor*superSamplingFactor);
         }
     }
 }
@@ -243,4 +259,9 @@ void Scene::setMaxRecursionDepth(int i)
 void Scene::setEye(Triple e)
 {
     eye = e;
+}
+
+void Scene::setSuperSamplingFactor(int f)
+{
+	superSamplingFactor = f;
 }

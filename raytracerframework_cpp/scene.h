@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <tuple>
+#include <omp.h>
 #include "triple.h"
 #include "light.h"
 #include "object.h"
@@ -52,6 +53,7 @@ public:
 	void setShadows(bool b);
 	void setRenderMode(renderMode_t m);
     void setEye(Triple e);
+    void setSuperSamplingFactor(int f);
 	void setMaxRecursionDepth(int i);
 
     unsigned int getNumObjects() { return objects.size(); }
