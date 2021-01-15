@@ -152,7 +152,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	}
 
 	// zBuffer ------
-	else if (renderMode == zBuffer)
+	else if (renderMode == zBuffer || renderMode == zBufferAuto)
 	{
         float z = (hit.z-minRange)/(maxRange-minRange);
 		color = Color(z, z, z);
@@ -176,21 +176,28 @@ float Scene::getContactZ(const Ray &ray)
 
 void Scene::render(Image &img)
 {
-    int w = img.width();
-    int h = img.height();
+	int w = img.width();
+	int h = img.height();
 
-	//fetching front/far limit for automated zbuffer range claibration
-    float nearPoint = std::numeric_limits<float>::min();
-    float farPoint = std::numeric_limits<float>::max();
+	float nearPoint = std::numeric_limits<float>::min();
+	float farPoint = std::numeric_limits<float>::max();
 
-	if(renderMode == zBuffer)
+	if (renderMode == zBuffer) {
+		nearPoint = nearPlane;
+		farPoint = farPlane;
+	}
+
+	if(renderMode == zBufferAuto)
     {
         for (int y = 0; y < h; y++)
             for (int x = 0; x < w; x++)
             {
                 Point pixel(x+0.5, h-1-y+0.5, 0);
-                Ray ray(eye, (pixel-eye).normalized());
-                float currentPoint = getContactZ(ray);
+				float currentPoint;
+
+				if (hasCamera) currentPoint = getContactZ(camera->rayAt(pixel));
+				else currentPoint = getContactZ(Ray(eye, (pixel - eye).normalized()));
+					
                 if(currentPoint != std::numeric_limits<float>::infinity() && currentPoint != -std::numeric_limits<float>::infinity())
                 {
                     if(nearPoint<currentPoint)
@@ -204,6 +211,13 @@ void Scene::render(Image &img)
         nearPoint -= 50;
     }
 
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            Point pixel(x+0.5, h-1-y+0.5, 0);
+			Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
+            Color col = trace(ray, farPoint, nearPoint,0);
+            col.clamp();
+            img(x,y) = col;
 
 	float offsetX = 0.5/superSamplingFactor;
 	float offsetY = 0.5/superSamplingFactor;
@@ -231,6 +245,9 @@ void Scene::render(Image &img)
     }
 }
 
+
+
+
 void Scene::addObject(Object *o)
 {
     objects.push_back(o);
@@ -239,6 +256,10 @@ void Scene::addObject(Object *o)
 void Scene::addLight(Light *l)
 {
     lights.push_back(l);
+}
+
+void Scene::setEye(Triple e) {
+	eye = e;
 }
 
 void Scene::setShadows(bool b) 
@@ -251,14 +272,45 @@ void Scene::setRenderMode(renderMode_t m)
 	renderMode = m;
 }
 
+renderMode_t Scene::getRenderMode()
+{
+	return renderMode;
+}
+
+void Scene::setClippingPlanes(int far, int near)
+{
+	farPlane = far;
+	nearPlane = near;
+}
+
 void Scene::setMaxRecursionDepth(int i)
 {
 	maxRecursionDepth = i;
 }
 
-void Scene::setEye(Triple e)
+void Scene::setCamera(Camera *c)
 {
-    eye = e;
+	camera = c;
+}
+
+void Scene::setHasCamera(bool b) 
+{
+	hasCamera = b;
+}
+
+bool Scene::getHasCamera() 
+{
+	return hasCamera;
+}
+
+int Scene::getWidth()
+{
+	return camera->viewWidth;
+}
+
+int Scene::getHeight()
+{
+	return camera->viewHeight;
 }
 
 void Scene::setSuperSamplingFactor(int f)

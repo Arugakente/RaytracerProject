@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="cone.cpp" />
     <ClCompile Include="deg4solver.cpp" />
     <ClCompile Include="image.cpp" />
@@ -124,6 +125,7 @@
     <ClCompile Include="yaml\stream.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="cone.h" />
     <ClInclude Include="deg4solver.h" />
     <ClInclude Include="image.h" />

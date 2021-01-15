@@ -12,9 +12,9 @@
 #  The example scene description should largely speak for itself. By now
 #  it should be clear that the #-character can be used to insert comments.
 
-RenderMode: "phong"
 
 Eye: [200,200,1000]  
+Shadows : false
 
 Lights:
 - position: [-200,600,1500]
@@ -23,7 +23,6 @@ Lights:
 Objects:
 - type: sphere
   position: [90,320,100]
-  rotation: [0.0,0.0,0.0]
   radius: 50
   material: # blue
     color: [0.0,0.0,1.0]
@@ -31,10 +30,8 @@ Objects:
     kd: 0.7
     ks: 0.5
     n: 64
-    refract: false
 - type: sphere
   position: [210,270,300]
-  rotation: [0.0,0.0,0.0]
   radius: 50
   material: # green
     color: [0.0,1.0,0.0]
@@ -42,10 +39,8 @@ Objects:
     kd: 0.3
     ks: 0.5
     n: 8
-    refract: false
 - type: sphere
   position: [290,170,150]
-  rotation: [0.0,0.0,0.0]
   radius: 50
   material: # red
     color: [1.0,0.0,0.0]
@@ -53,10 +48,8 @@ Objects:
     kd: 0.7
     ks: 0.8
     n: 32
-    refract: false
 - type: sphere
   position: [140,220,400]
-  rotation: [0.0,0.0,0.0]
   radius: 50
   material: # yellow
     color: [1.0,0.8,0.0]
@@ -64,10 +57,8 @@ Objects:
     kd: 0.8
     ks: 0.0
     n: 1
-    refract: false
 - type: sphere
   position: [110,130,200]
-  rotation: [0.0,0.0,0.0]
   radius: 50
   material: # orange
     color: [1.0,0.5,0.0]
@@ -75,4 +66,3 @@ Objects:
     kd: 0.8
     ks: 0.5
     n: 32
-    refract: false

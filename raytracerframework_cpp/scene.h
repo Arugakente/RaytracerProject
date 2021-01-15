@@ -28,19 +28,27 @@
 #include "light.h"
 #include "object.h"
 #include "image.h"
+#include "camera.h"
 
-enum renderMode_t{phong, zBuffer , normal};
+enum renderMode_t{phong, zBuffer, zBufferAuto, normal};
 
 class Scene
 {
 private:
+	Camera *camera;
+	bool hasCamera;
+	Triple eye;
+	
 	renderMode_t renderMode;
+	int farPlane, nearPlane;
+
 	bool shadows;
+
 	int maxRecursionDepth;
     int superSamplingFactor;
+	
     std::vector<Object*> objects;
     std::vector<Light*> lights;
-    Triple eye;
 public:
     std::pair<Hit,Object*> getNearestIntersectedObj(const Ray& ray);
     Color trace(const Ray &ray,float minRange,float maxRange, int currentReflexion);
@@ -50,11 +58,19 @@ public:
     void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);
+	void setEye(Triple e);
 	void setShadows(bool b);
 	void setRenderMode(renderMode_t m);
-    void setEye(Triple e);
+	renderMode_t getRenderMode();
+	void setClippingPlanes(int far, int near);
+    void setCamera(Camera *c);
+	bool getHasCamera();
+	void setHasCamera(bool b);
     void setSuperSamplingFactor(int f);
 	void setMaxRecursionDepth(int i);
+
+	int getWidth();
+	int getHeight();
 
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }
