@@ -114,24 +114,54 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		for (auto light : lights)
 		{
-			
-			Vector L = light->position - hit;
-			L.normalize();
+			float offsetX = light->size.x/lightSampling;
+			float offsetY = light->size.y/lightSampling;
+			float offsetZ = light->size.z/lightSampling;
 
-			Vector R = 2 * (L.dot(N))*N - L;
-			R.normalize();
+			Color currentId = Color(0.0,0.0,0.0);
+			Color currentIs = Color(0.0,0.0,0.0);
 
-			//computation of intersection with othe objects(reflexion) and in between lights(shadows)
-			auto obstacle = getNearestIntersectedObj(Ray(hit+L*0.01, L));
-			long double t = obstacle.first.t;
+			for(int x = -1 ; x<lightSampling-1;x++)
+			{
+				for(int y = -1 ; y<lightSampling-1;y++)
+				{
+					for(int z = -1 ; z<lightSampling-1;z++)
+					{
+						//centering if equal to 0
+						if(lightSampling == 1)
+						{
+							x = 0;
+							y = 0;
+							z = 0;
+						}
 
-			if (!shadows || !obstacle.second || t > (light->position - hit).length()) {
-				long double cosineDiff = L.dot(N);
-				long double cosineSpec = R.dot(V);
-				if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
-				if(cosineSpec >= 0.0)
-					Is += light->color * material->ks * pow(cosineSpec, material->n);
+						Point lightPos = Point(light->position+Triple(x*offsetX,y*offsetY,z*offsetZ));
+						Light currentLight = Light(lightPos,Triple(0.0,0.0,0.0),light->color);
+
+						Vector L = currentLight.position - hit;
+						L.normalize();
+
+						Vector R = 2 * (L.dot(N))*N - L;
+						R.normalize();
+
+						//computation of intersection with othe objects(reflexion) and in between lights(shadows)
+						auto obstacle = getNearestIntersectedObj(Ray(hit+L*0.01, L));
+						long double t = obstacle.first.t;
+
+						if (!shadows || !obstacle.second || t > (currentLight.position - hit).length()) 
+						{
+							long double cosineDiff = L.dot(N);
+							long double cosineSpec = R.dot(V);
+							if (cosineDiff >= 0.0)
+								currentId += currentLight.color * material->kd * cosineDiff;
+							if(cosineSpec >= 0.0)
+								currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+						}
+					}
+				}
 			}
+			Id += currentId/(lightSampling*lightSampling*lightSampling);
+			Is += currentIs/(lightSampling*lightSampling*lightSampling);
 		}
 
 		//computation of reflexion and refraction color:
