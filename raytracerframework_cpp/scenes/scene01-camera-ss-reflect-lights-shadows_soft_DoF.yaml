@@ -17,11 +17,13 @@ Camera:
     center: [200,200,0]
     up: [0,1,0]
     viewSize: [400,400]
+    AppertureSize : 10
+    ApertureSample : 16
 
 Shadows: true
 MaxRecursionDepth: 3
 SuperSampling:
-  factor: 4
+  factor: 2
 
 Lights:
 - position: [-200,600,1500]

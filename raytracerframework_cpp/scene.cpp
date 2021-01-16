@@ -245,27 +245,45 @@ void Scene::render(Image &img)
 	float offsetX = 0.5/superSamplingFactor;
 	float offsetY = 0.5/superSamplingFactor;
 
-	#pragma omp parallel for
-    for (int y = 0; y < h; y++) 
-	{
-        for (int x = 0; x < w; x++) 
-		{
-			Color sumColor = Color(0.0,0.0,0.0);
+	double c = camera->apertureSize/(camera->up.length()*sqrt(camera->apertureSample));
+	const double goldenAngle = 2*3.141592653589793238462643383279502884*((3-sqrt(5))/2);
 
-			for(int yy = 1;yy<=superSamplingFactor;yy++)
+	Point initialEye = camera->eye ;
+
+	for(int n = 0;n<camera->apertureSample ;n++)
+	{
+		double r=c*sqrt(n);
+		double th=n*goldenAngle;
+
+		#pragma omp parallel for
+    	for (int y = 0; y < h; y++) 
+		{
+        	for (int x = 0; x < w; x++) 
 			{
-				for(int xx = 1; xx<=superSamplingFactor;xx++)
+				Color sumColor = Color(0.0,0.0,0.0);
+
+				for(int yy = 1;yy<=superSamplingFactor;yy++)
 				{
-            		Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
-					Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
-            		Color col = trace(ray, farPoint, nearPoint,0);
-            		col.clamp();
-            		sumColor += col;
+					for(int xx = 1; xx<=superSamplingFactor;xx++)
+					{
+						int pixelIndex = ((x*w*xx*superSamplingFactor)+(y*yy));
+						camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
+			
+            			Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
+						Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
+            			Color col = trace(ray, farPoint, nearPoint,0);
+            			col.clamp();
+            			sumColor += col;
+					}
 				}
-			}
-			img(x,y) = sumColor/(superSamplingFactor*superSamplingFactor);
-        }
+				img(x,y) += sumColor/(superSamplingFactor*superSamplingFactor);
+        	}
+		}
     }
+	
+	for (int y = 0; y < h; y++) 
+        for (int x = 0; x < w; x++) 
+			img(x,y)/=camera->apertureSample;
 }
 
 

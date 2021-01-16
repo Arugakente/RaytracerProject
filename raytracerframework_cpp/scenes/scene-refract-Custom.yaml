@@ -6,7 +6,6 @@ Camera:
     center: [200,200,0]
     up: [0,1,0]
     viewSize: [400,400]
-    AppertureSize : 5
 
 RenderMode: "phong"
 Shadows: true
