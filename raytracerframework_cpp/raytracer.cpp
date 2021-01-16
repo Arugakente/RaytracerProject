@@ -48,12 +48,39 @@ Camera* Raytracer::parseCamera(const YAML::Node& node)
 	Point center = parseTriple(node["center"]);
 	Vector up = parseTriple(node["up"]);
 
+	int apertureSize;
+	int apertureSample;
+	try
+	{
+		node["AppertureSize"] >> apertureSize;
+	}
+	catch(std::exception e)
+	{
+		apertureSize = 0;
+	}
+
+	if(apertureSize == 0)
+	{
+		apertureSample = 1;
+	}
+	else
+	{
+		try
+		{
+			node["ApertureSample"] >> apertureSample;
+		}
+		catch(std::exception e)
+		{
+			apertureSample = 1;
+		}
+	}
+
 	uint32_t viewWidth;
 	uint32_t viewHeight;
 	node["viewSize"][0] >> viewWidth;
 	node["viewSize"][1] >> viewHeight;
 
-	Camera *cam = new Camera(eye, center, up, viewWidth, viewHeight);
+	Camera *cam = new Camera(eye, center, up, viewWidth, viewHeight,apertureSize,apertureSample);
 	return cam;
 }
 
