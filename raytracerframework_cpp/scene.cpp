@@ -51,6 +51,12 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Vector V = -ray.D;                              //the view vector
 
 
+	//for semi-transparent objects, we do not consider hidden surfaces
+	if (material->alpha < 1.0 && N.dot(ray.D) >= 0.0) {
+		return trace(Ray(hit + 0.01*ray.D, ray.D), minRange, maxRange, currentReflexion);
+	}
+
+
 	/****************************************************
 	* This is where you should insert the color
 	* calculation (Phong model).
@@ -114,9 +120,9 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		for (auto light : lights)
 		{
-			float offsetX = light->size.x/lightSampling;
-			float offsetY = light->size.y/lightSampling;
-			float offsetZ = light->size.z/lightSampling;
+			float offsetX = (float) (light->size.x/lightSampling);
+			float offsetY = (float) (light->size.y/lightSampling);
+			float offsetZ = (float) (light->size.z/lightSampling);
 
 			Color currentId = Color(0.0,0.0,0.0);
 			Color currentIs = Color(0.0,0.0,0.0);
@@ -185,7 +191,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	// zBuffer ------
 	else if (renderMode == zBuffer || renderMode == zBufferAuto)
 	{
-        float z = (hit.z-minRange)/(maxRange-minRange);
+		float z = (float) ((hit.z-minRange)/(maxRange-minRange));
 		color = Color(z, z, z);
 	}
 
@@ -195,7 +201,10 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		color = 0.5*N + 0.5*Vector(1.0, 1.0, 1.0);
 	}
 
-
+	double alpha = material->alpha;
+	if (alpha < 1.0) {
+		return alpha * color + (1-alpha) * trace(Ray(hit + 0.01*ray.D, ray.D), minRange, maxRange, currentReflexion);
+	}
     return color;
 }
 
@@ -245,27 +254,47 @@ void Scene::render(Image &img)
 	float offsetX = 0.5/superSamplingFactor;
 	float offsetY = 0.5/superSamplingFactor;
 
-	#pragma omp parallel for
-    for (int y = 0; y < h; y++) 
-	{
-        for (int x = 0; x < w; x++) 
-		{
-			Color sumColor = Color(0.0,0.0,0.0);
 
-			for(int yy = 1;yy<=superSamplingFactor;yy++)
-			{
-				for(int xx = 1; xx<=superSamplingFactor;xx++)
-				{
-            		Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
-					Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
-            		Color col = trace(ray, farPoint, nearPoint,0);
-            		col.clamp();
-            		sumColor += col;
-				}
+	double expTime = camera->exposureTime;
+	double dt;
+
+	if (exposureSampling <= 1) {
+		expTime = 0;
+		dt = 1;
+	}
+	else {
+		dt = expTime / (exposureSampling - 1);
+	}
+
+	for (double t = -expTime / 2; t <= expTime / 2; t += dt) {
+		for (auto obj : objects) {
+			if (obj->velocity.length() > 0.0) {
+				obj->position = obj->initPosition + t * obj->velocity;
 			}
-			img(x,y) = sumColor/(superSamplingFactor*superSamplingFactor);
-        }
-    }
+		}
+
+		#pragma omp parallel for
+		for (int y = 0; y < h; y++)
+		{
+			for (int x = 0; x < w; x++)
+			{
+				Color sumColor = Color(0.0, 0.0, 0.0);
+
+				for (int yy = 1; yy <= superSamplingFactor; yy++)
+				{
+					for (int xx = 1; xx <= superSamplingFactor; xx++)
+					{
+						Point pixel(x + (offsetX*xx), h - 1 - y + (offsetY*yy), 0);
+						Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized());
+						Color col = trace(ray, farPoint, nearPoint, 0);
+						col.clamp();
+						sumColor += col;
+					}
+				}
+				img(x, y) += sumColor / (superSamplingFactor*superSamplingFactor*exposureSampling);
+			}
+		}
+	}
 }
 
 
@@ -344,4 +373,9 @@ void Scene::setSuperSamplingFactor(int f)
 void Scene::setLightSampling(int s)
 {
 	lightSampling = s;
+}
+
+void Scene::setExposureSamples(int s)
+{
+	exposureSampling = s>1 ? s : 1;
 }
