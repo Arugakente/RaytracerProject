@@ -30,7 +30,7 @@ class Material;
 class Object {
 public:
     Material *material;
-    Object(Point p,Triple r):position(p),rotation(r){};
+    Object(Point p, Triple r, Triple v) : initPosition(p), position(p), rotation(r), velocity(v) {};
     virtual ~Object() { }
 
     virtual Hit intersect(const Ray &ray) = 0;
@@ -40,8 +40,10 @@ public:
     Triple applyTransformation(const Triple& toCorrect);
     //removing transformation form objects (normals for example when transformation have a influence on their calculation)
     Triple removeTransformation(const Triple& toCorrect);
-    const Point position;
+	const Point initPosition;
+    Point position; //position considering velocity
     const Triple rotation;
+	const Triple velocity;
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */

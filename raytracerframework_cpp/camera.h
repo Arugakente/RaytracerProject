@@ -11,17 +11,17 @@ public:
 
 	Vector up;
 	Vector side;
-	Vector front;
-
+	double xStretch;
 	uint32_t viewWidth;
 	uint32_t viewHeight;
+	double exposureTime;
 
 	int apertureSize;
 	int apertureSample;
 
-	Camera(Triple e, Triple c, Triple u, int w, int h,int as,int aSample) : eye(e), center(c), up(u), viewWidth(w), viewHeight(h), apertureSize(as),apertureSample(aSample)
+	Camera(Triple e, Triple c, Triple u,double xs, int w, int h, double eT, int as,int aSample) : eye(e), center(c), up(u), xStretch(xs), viewWidth(w), viewHeight(h),exposureTime(eT), apertureSize(as),apertureSample(aSample)
 	{
-		front = (eye - center).normalized();
+		Vector front = (eye - center).normalized();
 		side = up.cross(front).normalized();
 	}
 

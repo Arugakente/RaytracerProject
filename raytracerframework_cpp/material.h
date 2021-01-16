@@ -31,7 +31,8 @@ public:
     double ks;          // specular intensity 
     double n;           // exponent for specular highlight size
 	bool refract;       // indicates if the object refract ray
-	double eta = 0.0;        // index of refraction
+	double eta = 1.0;        // index of refraction
+	double alpha;
 
     Material() { }
 };

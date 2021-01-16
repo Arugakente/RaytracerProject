@@ -48,6 +48,7 @@ private:
     int superSamplingFactor;
 
     int lightSampling;
+	int exposureSampling;
 	
     std::vector<Object*> objects;
     std::vector<Light*> lights;
@@ -71,6 +72,7 @@ public:
     void setSuperSamplingFactor(int f);
 	void setMaxRecursionDepth(int i);
     void setLightSampling(int s);
+	void setExposureSamples(int s);
 
 	int getWidth();
 	int getHeight();
