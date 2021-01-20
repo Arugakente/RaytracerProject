@@ -14,8 +14,10 @@ bonuses :
  - deep of field (DoF) with blurring effect (no "rings")
  - soft shadows (with lightSamples)
  - velocity (with exposureTime and exposureSamples)
- - distributed computation with OpenMP
+ - multithreading with OpenMP
  - alpha (material transparency) computation
 
  - moved our zbuffer to zbufferAuto (and implemented zbuffer with far and near parameters)
  - managed YAML file reading so it is retro-compatible with old files
+
+!!! If you want to compute the fullset (you should check the YAML config file), acknowledge that it will take some hours !!!
