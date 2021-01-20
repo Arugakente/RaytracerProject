@@ -7,17 +7,21 @@
 ### MACROS
 
 # GNU (everywhere)
-CPP = g++ -std=c++17 -g -Wall -D_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR
+CPP = g++ -std=c++17 -Xpreprocessor -fopenmp -g -Wall -D_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR
 
 # GNU (faster)
 #CPP = g++ -O5 -Wall -fomit-frame-pointer -ffast-math 
 
-LIBS = -lm
+#LIBS = -lm  -fopenmp
+
+#MacOSX specific libs
+LIBS = -lm -lomp
 
 EXECUTABLE = ../ray
 
 OBJS = main.o raytracer.o sphere.o light.o material.o \
-	image.o triple.o lodepng.o scene.o torus.o deg4solver.o object.o rMatrix.o cone.o
+	image.o triple.o lodepng.o scene.o torus.o deg4solver.o \
+	object.o rMatrix.o cone.o camera.o
 
 YAMLOBJS = $(subst .cpp,.o,$(wildcard yaml/*.cpp))
 

@@ -51,6 +51,12 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Vector V = -ray.D;                              //the view vector
 
 
+	//for semi-transparent objects, we do not consider hidden surfaces
+	if (material->alpha < 1.0 && N.dot(ray.D) >= 0.0) {
+		return trace(Ray(hit + 0.01*ray.D, ray.D), minRange, maxRange, currentReflexion);
+	}
+
+
 	/****************************************************
 	* This is where you should insert the color
 	* calculation (Phong model).
@@ -111,33 +117,63 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 				refractionColor = trace(Ray(hit+RefractionRay*0.01, RefractionRay), minRange, maxRange, currentReflexion+1);
 			}
 		}
-		else if(!material->refract)
+
+		for (auto light : lights)
 		{
-			for (auto light : lights) 
+			float offsetX = (float) (light->size.x/lightSampling);
+			float offsetY = (float) (light->size.y/lightSampling);
+			float offsetZ = (float) (light->size.z/lightSampling);
+
+			Color currentId = Color(0.0,0.0,0.0);
+			Color currentIs = Color(0.0,0.0,0.0);
+
+			for(int x = -1 ; x<lightSampling-1;x++)
 			{
-				Vector L = light->position - hit;
-				L.normalize();
+				for(int y = -1 ; y<lightSampling-1;y++)
+				{
+					for(int z = -1 ; z<lightSampling-1;z++)
+					{
+						//centering if equal to 0
+						if(lightSampling == 1)
+						{
+							x = 0;
+							y = 0;
+							z = 0;
+						}
 
-				Vector R = 2 * (L.dot(N))*N - L;
-				R.normalize();
+						Point lightPos = Point(light->position+Triple(x*offsetX,y*offsetY,z*offsetZ));
+						Light currentLight = Light(lightPos,Triple(0.0,0.0,0.0),light->color);
 
-				//computation of intersection with othe objects(reflexion) and in between lights(shadows)
-				auto obstacle = getNearestIntersectedObj(Ray(hit+L*0.01, L));
-				long double t = obstacle.first.t;
+						Vector L = currentLight.position - hit;
+						L.normalize();
 
-				if (!shadows || !obstacle.second || t > (light->position - hit).length()) {
-					long double cosineDiff = L.dot(N);
-					long double cosineSpec = R.dot(V);
-					if (cosineDiff >= 0.0) Id += light->color * material->kd * cosineDiff;
-					if (cosineSpec >= 0.0) Is += light->color * material->ks * pow(cosineSpec, material->n);
+						Vector R = 2 * (L.dot(N))*N - L;
+						R.normalize();
+
+						//computation of intersection with othe objects(reflexion) and in between lights(shadows)
+						auto obstacle = getNearestIntersectedObj(Ray(hit+L*0.01, L));
+						long double t = obstacle.first.t;
+
+						if (!shadows || !obstacle.second || t > (currentLight.position - hit).length()) 
+						{
+							long double cosineDiff = L.dot(N);
+							long double cosineSpec = R.dot(V);
+							if (cosineDiff >= 0.0)
+								currentId += currentLight.color * material->kd * cosineDiff;
+							if(cosineSpec >= 0.0)
+								currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+						}
+					}
 				}
 			}
+			Id += currentId/(lightSampling*lightSampling*lightSampling);
+			Is += currentIs/(lightSampling*lightSampling*lightSampling);
 		}
 
 		//computation of reflexion and refraction color:
 		Color reflexionColor = Color(0.0, 0.0, 0.0);
 
-		if (material->ks != 0.0 && currentReflexion < maxRecursionDepth)
+		if (material->ks != 0.0 && currentReflexion < maxRecursionDepth && !material->refract)
 		{
 			Vector ReflexionRay = 2*(V.dot(N))*N-V;
 			ReflexionRay.normalize();
@@ -153,9 +189,9 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	}
 
 	// zBuffer ------
-	else if (renderMode == zBuffer)
+	else if (renderMode == zBuffer || renderMode == zBufferAuto)
 	{
-        float z = (hit.z-minRange)/(maxRange-minRange);
+		float z = (float) ((hit.z-minRange)/(maxRange-minRange));
 		color = Color(z, z, z);
 	}
 
@@ -165,7 +201,10 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		color = 0.5*N + 0.5*Vector(1.0, 1.0, 1.0);
 	}
 
-
+	double alpha = material->alpha;
+	if (alpha < 1.0) {
+		return alpha * color + (1-alpha) * trace(Ray(hit + 0.01*ray.D, ray.D), minRange, maxRange, currentReflexion);
+	}
     return color;
 }
 
@@ -177,21 +216,28 @@ float Scene::getContactZ(const Ray &ray)
 
 void Scene::render(Image &img)
 {
-    int w = img.width();
-    int h = img.height();
+	int w = img.width();
+	int h = img.height();
 
-	//fetching front/far limit for automated zbuffer range claibration
-    float nearPoint = std::numeric_limits<float>::min();
-    float farPoint = std::numeric_limits<float>::max();
+	float nearPoint = std::numeric_limits<float>::min();
+	float farPoint = std::numeric_limits<float>::max();
 
-	if(renderMode == zBuffer)
+	if (renderMode == zBuffer) {
+		nearPoint = nearPlane;
+		farPoint = farPlane;
+	}
+
+	if(renderMode == zBufferAuto)
     {
         for (int y = 0; y < h; y++)
             for (int x = 0; x < w; x++)
             {
                 Point pixel(x+0.5, h-1-y+0.5, 0);
-                Ray ray(eye, (pixel-eye).normalized());
-                float currentPoint = getContactZ(ray);
+				float currentPoint;
+
+				if (hasCamera) currentPoint = getContactZ(camera->rayAt(pixel));
+				else currentPoint = getContactZ(Ray(eye, (pixel - eye).normalized()));
+					
                 if(currentPoint != std::numeric_limits<float>::infinity() && currentPoint != -std::numeric_limits<float>::infinity())
                 {
                     if(nearPoint<currentPoint)
@@ -205,16 +251,82 @@ void Scene::render(Image &img)
         nearPoint -= 50;
     }
 
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            Point pixel(x+0.5, h-1-y+0.5, 0);
-            Ray ray(eye, (pixel-eye).normalized());
-            Color col = trace(ray, farPoint, nearPoint,0);
-            col.clamp();
-            img(x,y) = col;
-        }
-    }
+	//render parameters
+	float offsetX = 0.5/superSamplingFactor;
+	float offsetY = 0.5/superSamplingFactor;
+
+	double expTime = camera->exposureTime;
+	double dt;
+
+	if (exposureSampling <= 1) {
+		expTime = 0;
+		dt = 1;
+	}
+	else {
+		dt = expTime / (exposureSampling - 1);
+	}
+
+	double c = camera->apertureSize/(camera->up.length()*sqrt(camera->apertureSample));
+	const double goldenAngle = 2*3.141592653589793238462643383279502884*((3-sqrt(5))/2);
+
+	for (double t = -expTime / 2; t <= expTime / 2; t += dt)
+	{
+		for (auto obj : objects)
+		{
+			if (obj->velocity.length() > 0.0)
+			{
+				obj->position = obj->initPosition + t * obj->velocity;
+			}
+		}
+
+		Point initialEye = camera->eye ;
+
+		Image tmp = Image(img.width(),img.height());
+		for(int n = 0;n<camera->apertureSample ;n++)
+		{
+			double r=c*sqrt(n);
+			double th=n*goldenAngle;
+
+			#pragma omp parallel for
+    		for (int y = 0; y < h; y++)
+			{
+        		for (int x = 0; x < w; x++)
+				{
+					Color sumColor = Color(0.0,0.0,0.0);
+
+					for(int yy = 1;yy<=superSamplingFactor;yy++)
+					{
+						for(int xx = 1; xx<=superSamplingFactor;xx++)
+						{
+							int pixelIndex = ((x*w*xx*superSamplingFactor)+(y*yy));
+							camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
+
+            				Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
+							Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
+            				Color col = trace(ray, farPoint, nearPoint,0);
+            				col.clamp();
+            				sumColor += col;
+						}
+					}
+					tmp(x,y) += sumColor/(superSamplingFactor*superSamplingFactor);
+        		}
+			}
+    	}
+
+		for (int y = 0; y < h; y++)
+        	for (int x = 0; x < w; x++)
+			{
+				tmp(x,y)/=camera->apertureSample;
+				img(x,y) += tmp(x,y);
+			}
+	}
+	for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++)
+			img(x,y)/=exposureSampling;
 }
+
+
+
 
 void Scene::addObject(Object *o)
 {
@@ -226,7 +338,11 @@ void Scene::addLight(Light *l)
     lights.push_back(l);
 }
 
-void Scene::setShadows(bool b) 
+void Scene::setEye(Triple e) {
+	eye = e;
+}
+
+void Scene::setShadows(bool b)
 {
 	shadows = b;
 }
@@ -236,12 +352,58 @@ void Scene::setRenderMode(renderMode_t m)
 	renderMode = m;
 }
 
+renderMode_t Scene::getRenderMode()
+{
+	return renderMode;
+}
+
+void Scene::setClippingPlanes(int far, int near)
+{
+	farPlane = far;
+	nearPlane = near;
+}
+
 void Scene::setMaxRecursionDepth(int i)
 {
 	maxRecursionDepth = i;
 }
 
-void Scene::setEye(Triple e)
+void Scene::setCamera(Camera *c)
 {
-    eye = e;
+	camera = c;
+}
+
+void Scene::setHasCamera(bool b)
+{
+	hasCamera = b;
+}
+
+bool Scene::getHasCamera()
+{
+	return hasCamera;
+}
+
+int Scene::getWidth()
+{
+	return camera->viewWidth;
+}
+
+int Scene::getHeight()
+{
+	return camera->viewHeight;
+}
+
+void Scene::setSuperSamplingFactor(int f)
+{
+	superSamplingFactor = f;
+}
+
+void Scene::setLightSampling(int s)
+{
+	lightSampling = s;
+}
+
+void Scene::setExposureSamples(int s)
+{
+	exposureSampling = s>1 ? s : 1;
 }

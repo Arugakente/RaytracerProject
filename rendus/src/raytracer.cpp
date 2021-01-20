@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <fstream>
 #include <assert.h>
+#include <exception>
 
 // Functions to ease reading from YAML input
 void operator >> (const YAML::Node& node, Triple& t);
@@ -41,25 +42,88 @@ void operator >> (const YAML::Node& node, Triple& t)
     node[2] >> t.z;
 }
 
+Camera* Raytracer::parseCamera(const YAML::Node& node) 
+{
+	Point eye = parseTriple(node["eye"]);
+	Point center = parseTriple(node["center"]);
+	Vector up = parseTriple(node["up"]);
+	double xStretch;
+	
+	try {
+		node["xStretch"] >> xStretch;
+	}
+	catch (std::exception e) {
+		xStretch = 1;
+	}
+
+	int apertureSize;
+	int apertureSample;
+	try
+	{
+		node["AppertureSize"] >> apertureSize;
+	}
+	catch(std::exception e)
+	{
+		apertureSize = 0;
+	}
+
+	if(apertureSize == 0)
+	{
+		apertureSample = 1;
+	}
+	else
+	{
+		try
+		{
+			node["ApertureSample"] >> apertureSample;
+		}
+		catch(std::exception e)
+		{
+			apertureSample = 1;
+		}
+	}
+
+	uint32_t viewWidth;
+	uint32_t viewHeight;
+	node["viewSize"][0] >> viewWidth;
+	node["viewSize"][1] >> viewHeight;
+
+	double exposureTime;
+	try {
+		node["exposureTime"] >> exposureTime;
+	}
+	catch (std::exception e) {
+		exposureTime = 0.0;
+	}
+
+	Camera *cam = new Camera(eye, center, up, xStretch, viewWidth, viewHeight, exposureTime,apertureSize,apertureSample);
+	return cam;
+}
+
 renderMode_t Raytracer::parseRenderMode(const YAML::Node& node)
 {
-    if(node == "zbuffer")
-        return zBuffer;
-    else if(node == "normal")
-        return normal;
-    else if(node == "phong")
-        return phong;
-    else
-        return phong;
+	if (node == "zbuffer")
+		return zBuffer;
+	else if (node == "zbufferAuto")
+		return zBufferAuto;
+	else if (node == "normal")
+		return normal;
+	else if (node == "phong")
+		return phong;
+	else
+		return phong;
 }
 
 bool Raytracer::parseShadows(const YAML::Node& node)
 {
+	if (node.GetType() != YAML::CT_SCALAR) return false;
 	return node;
 }
 
 int Raytracer::parseMaxRecursionDepth(const YAML::Node& node)
 {
+	if (node.GetType() != YAML::CT_SCALAR) return 0;
+
 	int i;
 	node >> i;
 	if (i >= 0 && i <= 20) return i;
@@ -77,14 +141,28 @@ Triple parseTriple(const YAML::Node& node)
 
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
-    Material *m = new Material();
-    node["color"] >> m->color;	
-    node["ka"] >> m->ka;
-    node["kd"] >> m->kd;
-    node["ks"] >> m->ks;
-    node["n"] >> m->n;
-	node["refract"] >> m->refract;
+	Material *m = new Material();
+	node["color"] >> m->color;
+	node["ka"] >> m->ka;
+	node["kd"] >> m->kd;
+	node["ks"] >> m->ks;
+	node["n"] >> m->n;
+
+	try {
+		node["refract"] >> m->refract;
+	}
+	catch (std::exception e) {
+		m->refract = false;
+	}
 	if (m->refract) node["eta"] >> m->eta;
+
+	try {
+		node["alpha"] >> m->alpha;
+	}
+	catch (std::exception e) {
+		m->alpha = 1.0;
+	}
+
     return m;
 }
 
@@ -94,38 +172,45 @@ Object* Raytracer::parseObject(const YAML::Node& node)
     std::string objectType;
     node["type"] >> objectType;
 
+	Point pos;
+	Triple rot;
+	Triple vel;
+	node["position"] >> pos;
+
+	try { //optional rotation
+		node["rotation"] >> rot;
+	} 
+	catch (std::exception e) {
+		rot = Triple(0.0, 0.0, 0.0);
+	}
+
+	try {
+		node["velocity"] >> vel;
+	}
+	catch (std::exception e) {
+		vel = Triple(0.0, 0.0, 0.0);
+	}
+
 	if (objectType == "sphere") {
-		Point pos;
-		Triple rotation;
-		node["position"] >> pos;
-		node["rotation"] >> rotation;
 		double r;
 		node["radius"] >> r;
-		Sphere *sphere = new Sphere(pos, rotation, r);
+		Sphere *sphere = new Sphere(pos, rot, vel, r);
 		returnObject = sphere;
 	}
 	if (objectType == "torus") {
-		Point pos;
-		Triple rotation;
-		node["position"] >> pos;
-		node["rotation"] >> rotation;
 		double R;
 		double r;
 		node["wideRadius"] >> R;
 		node["smallRadius"] >> r;
-		Torus *torus = new Torus(pos, rotation, r, R);
+		Torus *torus = new Torus(pos, rot, vel, r, R);
 		returnObject = torus;
 	}
 	if (objectType == "cone") {
-		Point pos;
-		Triple rotation;
-		node["position"] >> pos;
-		node["rotation"] >> rotation;
 		double r;
 		double h;
 		node["radius"] >> r;
 		node["height"] >> h;
-		Cone *cone = new Cone(pos, rotation, r, h);
+		Cone *cone = new Cone(pos, rot, vel, r, h);
 		returnObject = cone;
 	}
 
@@ -141,11 +226,26 @@ Light* Raytracer::parseLight(const YAML::Node& node)
 {
     Point position;
     node["position"] >> position;
+    Triple size;
+    try
+    {
+        node["size"] >> size;
+    }
+    catch(std::exception e)
+    {
+        size = Triple(0.0,0.0,0.0);
+    }
     Color color;
     node["color"] >> color;
-    return new Light(position,color);
+    return new Light(position,size,color);
 }
 
+int Raytracer::parseSSfactor(const YAML::Node& node)
+{
+    int factor;
+    node["factor"] >> factor;
+    return factor;
+}
 /*
 * Read a scene from file
 */
@@ -168,10 +268,59 @@ bool Raytracer::readScene(const std::string& inputFilename)
             parser.GetNextDocument(doc);
 
             // Read scene configuration options
-			scene->setShadows(parseShadows(doc["Shadows"]));
-            scene->setEye(parseTriple(doc["Eye"]));
-			scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
-			scene->setMaxRecursionDepth(parseMaxRecursionDepth(doc["MaxRecursionDepth"]));
+			try {
+				const YAML::Node& cam = doc["Camera"];
+				scene->setHasCamera(true);
+				scene->setCamera(parseCamera(cam));
+			}
+			catch (std::exception e) {
+				scene->setHasCamera(false);
+				scene->setEye(parseTriple(doc["Eye"]));
+			}
+
+			try { 
+				scene->setShadows(parseShadows(doc["Shadows"])); 
+			}
+			catch (std::exception e) { 
+				scene->setShadows(false); 
+			}
+			
+			try { 
+				scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
+			}
+			catch (std::exception e) { 
+				scene->setRenderMode(phong);
+			}
+			if (scene->getRenderMode() == zBuffer)
+				scene->setClippingPlanes(doc["far"], doc["near"]);
+
+			try { 
+				scene->setMaxRecursionDepth(parseMaxRecursionDepth(doc["MaxRecursionDepth"]));
+			}
+			catch (std::exception e) { 
+				scene->setMaxRecursionDepth(0);
+			}
+
+            try { 
+				scene->setSuperSamplingFactor(parseSSfactor(doc["SuperSampling"]));
+            }
+            catch(std::exception e) { 
+				scene->setSuperSamplingFactor(1);
+            }
+
+            try {
+                scene->setLightSampling(doc["lightsSamples"]);
+            }
+            catch(std::exception e) {
+                scene->setLightSampling(1);
+            }
+
+			try {
+				scene->setExposureSamples(doc["exposureSamples"]);
+			}
+			catch (std::exception e) {
+				scene->setExposureSamples(1);
+			}
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];
@@ -191,7 +340,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
             // Read and parse light definitions
             const YAML::Node& sceneLights = doc["Lights"];
-            if (sceneObjects.GetType() != YAML::CT_SEQUENCE) {
+            if (sceneLights.GetType() != YAML::CT_SEQUENCE) {
                 cerr << "Error: expected a sequence of lights." << endl;
                 return false;
             }
@@ -213,10 +362,17 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
 void Raytracer::renderToFile(const std::string& outputFilename)
 {
-    Image img(400,400);
+	int w = 400;
+	int h = 400;
+
+	if (scene->getHasCamera()) {
+		w = scene->getWidth();
+		h = scene->getHeight();
+	}
+    Image img(w,h);
     cout << "Tracing..." << endl;
     scene->render(img);
     cout << "Writing image to " << outputFilename << "..." << endl;
     img.write_png(outputFilename.c_str());
-    cout << "Done." << endl;
+    cout << "Done." << endl << endl;
 }

@@ -26,7 +26,7 @@
 class Sphere : public Object
 {
 public:
-    Sphere(Point position,Triple rotation,long double r) : Object(position,rotation), r(r) { }
+    Sphere(Point position, Triple rotation, Triple velocity, long double r) : Object(position, rotation, velocity), r(r) { }
 
     virtual Hit intersect(const Ray &ray);
     
