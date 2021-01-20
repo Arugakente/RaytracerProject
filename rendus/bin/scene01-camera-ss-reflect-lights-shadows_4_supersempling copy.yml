@@ -17,25 +17,17 @@ Camera:
     center: [200,200,0]
     up: [0,1,0]
     viewSize: [800,800]
-    exposureTime: 10
-    AppertureSize : 10
-    ApertureSample : 8
 
 Shadows: true
-MaxRecursionDepth: 3
+MaxRecursionDepth: 2
 SuperSampling:
-  factor: 4
-exposureSamples: 4
+  factor: 2
 
 Lights:
 - position: [-200,600,1500]
-  size: [15.0,15.0,15.0]
   color: [0.4,0.4,0.8]
 - position: [600,600,1500]
-  size: [15.0,15.0,15.0]
   color: [0.8,0.8,0.4]
-
-lightsSamples: 2
 
 Objects:
 - type: sphere
@@ -49,7 +41,6 @@ Objects:
     n: 64
 - type: sphere
   position: [210,270,300]
-  velocity: [1, 3, -0.5]
   radius: 50
   material: # green
     color: [0.0,1.0,0.0]
@@ -59,7 +50,6 @@ Objects:
     n: 8
 - type: sphere
   position: [290,170,150]
-  velocity: [-0.5, -1, 2]
   radius: 50
   material: # red
     color: [1.0,0.0,0.0]
@@ -69,7 +59,6 @@ Objects:
     n: 32
 - type: sphere
   position: [140,220,400]
-  velocity: [2, 2, 0]
   radius: 50
   material: # yellow
     color: [1.0,0.8,0.0]
