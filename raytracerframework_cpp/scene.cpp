@@ -281,6 +281,7 @@ void Scene::render(Image &img)
 
 		Point initialEye = camera->eye ;
 
+		Image tmp = Image(img.width(),img.height());
 		for(int n = 0;n<camera->apertureSample ;n++)
 		{
 			double r=c*sqrt(n);
@@ -307,14 +308,17 @@ void Scene::render(Image &img)
             				sumColor += col;
 						}
 					}
-					img(x,y) += sumColor/(superSamplingFactor*superSamplingFactor);
+					tmp(x,y) += sumColor/(superSamplingFactor*superSamplingFactor);
         		}
 			}
     	}
 
 		for (int y = 0; y < h; y++)
         	for (int x = 0; x < w; x++)
-				img(x,y)/=camera->apertureSample;
+			{
+				tmp(x,y)/=camera->apertureSample;
+				img(x,y) += tmp(x,y);
+			}
 	}
 	for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++)
