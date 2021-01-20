@@ -255,18 +255,33 @@ void Scene::render(Image &img)
 	float offsetX = 0.5/superSamplingFactor;
 	float offsetY = 0.5/superSamplingFactor;
 
-	double expTime = camera->exposureTime;
+	double expTime;
 	double dt;
+	long apertureSample ;
+	double c ;
 
-	if (exposureSampling <= 1) {
+	if(hasCamera)
+	{
+ 		expTime = camera->exposureTime;
+
+		if (exposureSampling <= 1) {
+			expTime = 0;
+			dt = 1;
+		}
+		else {
+			dt = expTime / (exposureSampling - 1);
+		}
+		apertureSample = camera->apertureSample;
+		c = camera->apertureSize/(camera->up.length()*sqrt(camera->apertureSample));
+	}
+	else
+	{
 		expTime = 0;
 		dt = 1;
-	}
-	else {
-		dt = expTime / (exposureSampling - 1);
+		apertureSample = 1;
+		c = 0;
 	}
 
-	double c = camera->apertureSize/(camera->up.length()*sqrt(camera->apertureSample));
 	const double goldenAngle = 2*3.141592653589793238462643383279502884*((3-sqrt(5))/2);
 
 	for (double t = -expTime / 2; t <= expTime / 2; t += dt)
@@ -282,7 +297,7 @@ void Scene::render(Image &img)
 		Point initialEye = camera->eye ;
 
 		Image tmp = Image(img.width(),img.height());
-		for(int n = 0;n<camera->apertureSample ;n++)
+		for(int n = 0;n<apertureSample ;n++)
 		{
 			double r=c*sqrt(n);
 			double th=n*goldenAngle;
@@ -316,7 +331,7 @@ void Scene::render(Image &img)
 		for (int y = 0; y < h; y++)
         	for (int x = 0; x < w; x++)
 			{
-				tmp(x,y)/=camera->apertureSample;
+				tmp(x,y)/=apertureSample;
 				img(x,y) += tmp(x,y);
 			}
 	}
