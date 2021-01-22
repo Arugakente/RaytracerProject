@@ -30,7 +30,7 @@
 #include "image.h"
 #include "camera.h"
 
-enum renderMode_t{phong, zBuffer, zBufferAuto, normal};
+enum renderMode_t{phong, gooch ,zBuffer, zBufferAuto, normal};
 
 class Scene
 {

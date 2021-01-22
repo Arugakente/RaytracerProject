@@ -110,6 +110,8 @@ renderMode_t Raytracer::parseRenderMode(const YAML::Node& node)
 		return normal;
 	else if (node == "phong")
 		return phong;
+	else if (node == "gooch")
+		return gooch;
 	else
 		return phong;
 }
@@ -284,7 +286,7 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			catch (std::exception e) { 
 				scene->setShadows(false); 
 			}
-			
+
 			try { 
 				scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
 			}

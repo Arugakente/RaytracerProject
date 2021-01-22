@@ -78,9 +78,8 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Color color;
 
 	// Phong ------
-	if (renderMode == phong) 
+	if (renderMode == phong || renderMode == gooch)
 	{
-
 		Color Ia = Color(1.0, 1.0, 1.0);
 		Ia *= material->ka;
 
@@ -88,7 +87,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		Color Is = Color(0.0, 0.0, 0.0);
 
 		Color refractionColor = Color(0.0, 0.0, 0.0);
-		if (material->refract && currentReflexion < maxRecursionDepth) 
+		if (material->refract && currentReflexion < maxRecursionDepth)
 		{
 			Vector Vnorm = ray.D;
 			//Vnorm.normalize();
@@ -156,12 +155,27 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 						if (!shadows || !obstacle.second || t > (currentLight.position - hit).length()) 
 						{
-							long double cosineDiff = L.dot(N);
-							long double cosineSpec = R.dot(V);
-							if (cosineDiff >= 0.0)
-								currentId += currentLight.color * material->kd * cosineDiff;
-							if(cosineSpec >= 0.0)
-								currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+							if(renderMode == phong)
+							{
+								long double cosineDiff = L.dot(N);
+								long double cosineSpec = R.dot(V);
+								if (cosineDiff >= 0.0)
+									currentId += currentLight.color * material->kd * cosineDiff;
+								if(cosineSpec >= 0.0)
+									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+							}
+							else
+							{
+								long double cosineSpec = R.dot(V);
+								Color tmpId = currentLight.color * material->color * material->kd;
+
+								if(cosineSpec >= 0.0)
+									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+
+								Color Kcool = Color(0.0,0.0,0.55)+0.25*tmpId;
+								Color Kwarm = Color(0.3,0.3,0.0)+ 0.5*tmpId;
+								currentId += Kcool* (1 - N.dot(L))/2 + Kwarm* (1 +  N.dot(L))/2;
+							}
 						}
 					}
 				}
@@ -184,8 +198,10 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		if(material->refract)
 			color = refractionColor + Is;
-		else
+		else if(renderMode == phong)
 			color = (Ia + Id) * material->color + Is;
+		else
+			color = Id + Is;
 	}
 
 	// zBuffer ------
@@ -237,7 +253,7 @@ void Scene::render(Image &img)
 
 				if (hasCamera) currentPoint = getContactZ(camera->rayAt(pixel));
 				else currentPoint = getContactZ(Ray(eye, (pixel - eye).normalized()));
-					
+
                 if(currentPoint != std::numeric_limits<float>::infinity() && currentPoint != -std::numeric_limits<float>::infinity())
                 {
                     if(nearPoint<currentPoint)
@@ -294,7 +310,11 @@ void Scene::render(Image &img)
 			}
 		}
 
-		Point initialEye = camera->eye ;
+		Point initialEye;
+		if(hasCamera)
+			initialEye = camera->eye ;
+		else
+			initialEye = eye ;
 
 		Image tmp = Image(img.width(),img.height());
 		for(int n = 0;n<apertureSample ;n++)
@@ -314,7 +334,10 @@ void Scene::render(Image &img)
 						for(int xx = 1; xx<=superSamplingFactor;xx++)
 						{
 							int pixelIndex = ((x*w*xx*superSamplingFactor)+(y*yy));
-							camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
+							if(hasCamera)
+								camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
+							else
+								eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),eye.z);
 
             				Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
 							Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
