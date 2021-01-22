@@ -313,8 +313,6 @@ void Scene::render(Image &img)
 		Point initialEye;
 		if(hasCamera)
 			initialEye = camera->eye ;
-		else
-			initialEye = eye ;
 
 		Image tmp = Image(img.width(),img.height());
 		for(int n = 0;n<apertureSample ;n++)
@@ -336,8 +334,6 @@ void Scene::render(Image &img)
 							int pixelIndex = ((x*w*xx*superSamplingFactor)+(y*yy));
 							if(hasCamera)
 								camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
-							else
-								eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),eye.z);
 
             				Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
 							Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
