@@ -200,7 +200,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 			color = refractionColor + Is;
 		else if(renderMode == phong)
 			color = (Ia + Id) * material->color + Is;
-		else
+		else if(renderMode == gooch)
 			color = Id + Is;
 	}
 
@@ -345,6 +345,57 @@ void Scene::render(Image &img)
 					tmp(x,y) += sumColor/(superSamplingFactor*superSamplingFactor);
         		}
 			}
+
+			//addition of the edgelines
+			if(renderMode == gooch)
+			{
+				long double zValues[w][h];
+				//computing zbuffer
+				#pragma omp parallel for
+				for (int y = 0; y < h; y++)
+            		for (int x = 0; x < w; x++)
+            		{
+                		Point pixel(x, h-1-y, 0);
+						if (hasCamera) zValues[x][y] = getContactZ(camera->rayAt(pixel));
+						else zValues[x][y] = getContactZ(Ray(eye, (pixel - eye).normalized()));
+            		}
+
+				//computing normalmap
+				renderMode = normal;
+				std::vector<std::vector<Triple>> normals;
+				for (int x = 0; x < w; x++)
+				{
+					normals.push_back(std::vector<Triple>());
+            		for (int y = 0; y < h; y++)
+					{
+						Point pixel(x, h-1-y, 0);
+						Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
+            			normals.back().push_back(trace(ray, farPoint, nearPoint,0));
+					}
+				}
+				renderMode = gooch;
+
+
+				for (int y = 1; y < h-1; y++)
+            		for (int x = 1; x < w-1; x++)
+            		{
+						long double variation = (zValues[x-1][y-1] + 2*zValues[x-1][y] + zValues[x-1][y+1]
+								  		  	    +2*zValues[x][y-1] + -12*zValues[x][y] + 2*zValues[x][y+1]
+								  				+zValues[x+1][y-1] + 2*zValues[x+1][y] + zValues[x+1][y+1])/9;
+
+						if(variation*variation>1)
+							tmp(x,y) = Color(0,0,0);
+						else
+						{
+							Vector normVariation = ( normals[x-1][y-1] + 2*normals[x-1][y] + normals[x-1][y+1]
+													+2*normals[x][y-1] + -12*normals[x][y] + 2*normals[x][y+1]
+									  				+normals[x+1][y-1] + 2*normals[x+1][y] + normals[x+1][y+1])/9;
+
+							if(normVariation.length() > 0.1)
+								tmp(x,y) = Color(0,0,0);
+						}
+					}
+			}
     	}
 
 		for (int y = 0; y < h; y++)
@@ -357,10 +408,8 @@ void Scene::render(Image &img)
 	for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++)
 			img(x,y)/=exposureSampling;
+
 }
-
-
-
 
 void Scene::addObject(Object *o)
 {
