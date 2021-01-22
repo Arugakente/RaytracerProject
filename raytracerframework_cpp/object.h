@@ -24,8 +24,8 @@
 #include "triple.h"
 #include "light.h"
 #include "rMatrix.h"
-
-class Material;
+#include "constants.h"
+#include "material.h"
 
 class Object {
 public:
@@ -44,6 +44,9 @@ public:
     Point position; //position considering velocity
     const Triple rotation;
 	const Triple velocity;
+
+	Color getTexel(Point hit, Vector n);
+	virtual Vector getUV(Point hit, Vector n); //we could specify a certain type of uv mapping
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */

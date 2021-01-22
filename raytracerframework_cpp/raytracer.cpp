@@ -102,14 +102,16 @@ Camera* Raytracer::parseCamera(const YAML::Node& node)
 
 renderMode_t Raytracer::parseRenderMode(const YAML::Node& node)
 {
-	if (node == "zbuffer")
+	if (node == "phong")
+		return phong;
+	else if (node == "zbuffer")
 		return zBuffer;
 	else if (node == "zbufferAuto")
 		return zBufferAuto;
 	else if (node == "normal")
 		return normal;
-	else if (node == "phong")
-		return phong;
+	else if (node == "uvBuffer")
+		return uvBuffer;
 	else
 		return phong;
 }
@@ -142,7 +144,13 @@ Triple parseTriple(const YAML::Node& node)
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
 	Material *m = new Material();
-	node["color"] >> m->color;
+
+	try {
+		node["color"] >> m->color;
+	}
+	catch (exception e) {
+		m->color = Color(0, 0, 0);
+	}
 	node["ka"] >> m->ka;
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
@@ -161,6 +169,14 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
 	}
 	catch (std::exception e) {
 		m->alpha = 1.0;
+	}
+
+	try {
+		string textureFile = node["texture"];
+		m->texture = new Image(textureFile.c_str());
+	}
+	catch (std::exception e) {
+		m->texture = nullptr;
 	}
 
     return m;
@@ -193,7 +209,16 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 
 	if (objectType == "sphere") {
 		double r;
-		node["radius"] >> r;
+		Vector uvUp = Vector(0, 1.0, 0);
+
+		const YAML::Node& rad = node["radius"];
+		//if (rad.GetType() == YAML::CT_SCALAR) {
+		rad >> r;
+		//}
+		/*else if (rad.GetType() == YAML::CT_SEQUENCE) {
+			rad[0] >> r;
+			rad[1][0] >> uvUp()
+		}*/
 		Sphere *sphere = new Sphere(pos, rot, vel, r);
 		returnObject = sphere;
 	}

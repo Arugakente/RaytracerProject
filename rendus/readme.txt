@@ -10,12 +10,12 @@ src: contains every .cpp and .h file (+ the Makefile) at the end of the assignme
 
 bonuses :
  + fixed the specular effect with refraction
- - xStretch (zoom only in x direction)
+ - xStretch (scale in x axis)
  - deep of field (DoF) with blurring effect (no "rings")
- - soft shadows (with lightSamples)
+ - soft shadows (with lightSamples and cubic area lights)
  - velocity (with exposureTime and exposureSamples)
  - multithreading with OpenMP
- - alpha (material transparency) computation
+ - alpha (material transparency) computation (without proper shadows for the moment)
 
  - moved our zbuffer to zbufferAuto (and implemented zbuffer with far and near parameters)
  - managed YAML file reading so it is retro-compatible with old files

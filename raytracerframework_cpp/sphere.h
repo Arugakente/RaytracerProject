@@ -29,6 +29,9 @@ public:
     Sphere(Point position, Triple rotation, Triple velocity, long double r) : Object(position, rotation, velocity), r(r) { }
 
     virtual Hit intersect(const Ray &ray);
+	Vector getUV(Point hit, Vector n);
+
+	Vector uvUp = Vector(0, 1.0, 0);
     
     const long double r;
 };

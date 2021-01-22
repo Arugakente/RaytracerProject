@@ -82,3 +82,8 @@ Hit Sphere::intersect(const Ray &ray)
     
     return Hit(t,N);
 }
+
+Vector Sphere::getUV(Point hit, Vector n)
+{
+	return Vector (atan2(n.z, -n.x) / (2*PI) + 0.5, -(asinf(n.y) / PI) + 0.5, 0.0);
+}

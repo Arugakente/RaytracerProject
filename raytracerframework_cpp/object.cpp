@@ -37,3 +37,18 @@ Triple Object::applyTransformation(const Triple& toCorrect)
     corrected = rMatrix(rotation.z,rot_z).rotate(corrected);
     return corrected;
 }
+
+Color Object::getTexel(Point hit, Vector n)
+{
+	Vector uv = getUV(hit, n);
+	return material->texture->colorAt(uv.x, uv.y);
+}
+
+
+Vector Object::getUV(Point hit, Vector n)
+{
+	//by default : spherical mapping
+	Vector toCenter = (hit - position).normalized();
+
+	return Vector (asinf(toCenter.x)/PI + 0.5, asinf(toCenter.y)/PI + 0.5, 0.0).normalized();
+}
