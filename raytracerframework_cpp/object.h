@@ -24,8 +24,7 @@
 #include "triple.h"
 #include "light.h"
 #include "rMatrix.h"
-
-class Material;
+#include "material.h"
 
 class Object {
 public:
