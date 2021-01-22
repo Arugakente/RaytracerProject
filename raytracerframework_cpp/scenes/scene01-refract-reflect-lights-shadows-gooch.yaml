@@ -19,8 +19,8 @@ Shadows: true
 MaxRecursionDepth: 2
 
 Lights:
-- position: [-200,600,1500]
-  color: [0.4,0.4,0.8]
+- position: [-1000,600,400]
+  color: [1.0,1.0,1.0]
 
 
 Objects:
