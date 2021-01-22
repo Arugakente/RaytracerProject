@@ -179,6 +179,14 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
 		m->texture = nullptr;
 	}
 
+	try {
+		string bumpFile = node["bump"];
+		m->bump = new Image(bumpFile.c_str());
+	}
+	catch (std::exception e) {
+		m->bump = nullptr;
+	}
+
     return m;
 }
 
@@ -209,7 +217,7 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 
 	if (objectType == "sphere") {
 		double r;
-		Vector uvUp = Vector(0, 1.0, 0);
+		//Vector uvUp = Vector(0, 1.0, 0);
 
 		const YAML::Node& rad = node["radius"];
 		//if (rad.GetType() == YAML::CT_SCALAR) {

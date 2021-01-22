@@ -35,6 +35,7 @@ public:
 	double eta = 1.0;        // index of refraction
 	double alpha;
 	Image *texture;
+	Image* bump;
 
     Material() { }
 };

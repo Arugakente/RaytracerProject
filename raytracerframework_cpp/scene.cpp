@@ -51,6 +51,26 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Vector N = nearest.first.N;                     //the normal at hit point
 	Vector V = -ray.D;                              //the view vector
 
+	if (material->bump != nullptr) {
+		Vector n1 = Vector(N.y, -N.x, N.z);
+		Vector n2 = N.cross(n1).normalized();
+		n1 = N.cross(n2).normalized();
+
+		n1 = Vector(n1.x, 0, n1.z).normalized();
+		n2 = N.cross(n1);
+		n1 = N.cross(n2);
+
+		Point p = obj->getUV(hit, N);
+
+		double dx = 1.0 / (double) material->bump->width();
+		double dy = 1.0 / (double) material->bump->height();
+
+		double du = abs(material->bump->colorAt(p.x+dx, p.y).length() - material->bump->colorAt(p.x-dx, p.y).length()) / (2*dx);
+		double dv = abs(material->bump->colorAt(p.x, p.y+dy).length() - material->bump->colorAt(p.x, p.y-dy).length()) / (2*dy);
+
+		N = (N + du*n1 + dv*n1).normalized();
+	}
+
 
 	//for semi-transparent objects, we do not consider hidden surfaces
 	if (material->alpha < 1.0 && N.dot(ray.D) >= 0.0) {
