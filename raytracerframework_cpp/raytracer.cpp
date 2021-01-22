@@ -132,6 +132,15 @@ int Raytracer::parseMaxRecursionDepth(const YAML::Node& node)
 	return 0;
 }
 
+float Raytracer::parseGoochParams(const YAML::Node& node)
+{
+	float toReturn;
+	node >> toReturn;
+
+	if (toReturn >= 0 && toReturn <= 1) return toReturn;
+	return 0;
+}
+
 Triple parseTriple(const YAML::Node& node)
 {
     Triple t;
@@ -289,6 +298,13 @@ bool Raytracer::readScene(const std::string& inputFilename)
 
 			try { 
 				scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
+				if(scene->getRenderMode() == gooch)
+				{
+					scene->setB(parseGoochParams(doc["GoochParameters"]["b"]));
+					scene->setY(parseGoochParams(doc["GoochParameters"]["y"]));
+					scene->setAlpha(parseGoochParams(doc["GoochParameters"]["alpha"]));
+					scene->setBeta(parseGoochParams(doc["GoochParameters"]["beta"]));
+				}
 			}
 			catch (std::exception e) { 
 				scene->setRenderMode(phong);

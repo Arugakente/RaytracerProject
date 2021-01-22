@@ -172,8 +172,8 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 								if(cosineSpec >= 0.0)
 									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
 
-								Color Kcool = Color(0.0,0.0,0.55)+0.25*tmpId;
-								Color Kwarm = Color(0.3,0.3,0.0)+ 0.5*tmpId;
+								Color Kcool = Color(0.0,0.0,this->b)+this->alpha*tmpId;
+								Color Kwarm = Color(this->y,this->y,0.0)+ this->beta*tmpId;
 								currentId += Kcool* (1 - N.dot(L))/2 + Kwarm* (1 +  N.dot(L))/2;
 							}
 						}
@@ -440,4 +440,21 @@ void Scene::setLightSampling(int s)
 void Scene::setExposureSamples(int s)
 {
 	exposureSampling = s>1 ? s : 1;
+}
+
+void Scene::setB(float b)
+{
+	this->b =b;
+}
+void Scene::setY(float y)
+{
+	this->y = y;
+}
+void Scene::setAlpha(float a)
+{
+	alpha = a;
+}
+void Scene::setBeta(float b)
+{
+	beta = b;
 }

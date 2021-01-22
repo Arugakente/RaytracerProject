@@ -39,6 +39,7 @@ private:
     int parseSSfactor(const YAML::Node& node);
 	bool parseShadows(const YAML::Node& node);
 	int parseMaxRecursionDepth(const YAML::Node& node);
+    float parseGoochParams(const YAML::Node& node);
 
 public:
     Raytracer() { }

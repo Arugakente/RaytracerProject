@@ -15,6 +15,12 @@
 Eye: [200,200,1000]  
 
 RenderMode: "gooch"
+GoochParameters:
+  b: 0.55
+  y: 0.3
+  alpha: 0.25
+  beta: 0.5
+  
 Shadows: true
 MaxRecursionDepth: 2
 
