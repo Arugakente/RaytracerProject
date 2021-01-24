@@ -12,7 +12,7 @@
 #  The example scene description should largely speak for itself. By now
 #  it should be clear that the #-character can be used to insert comments.
 
-RenderMode: uvBuffer
+#RenderMode: uvBuffer
 
 Eye: [200,200,1000]  
 
@@ -57,12 +57,12 @@ Objects:
     n: 32
 - type: sphere
   position: [140,220,400]
-  rotation: [90.0, 0.0, 0.0]
+  rotation: [35.0, 90.0, 0.0]
   radius: 50
   angle: 90
   material:
     texture: earthmap1k.png
-    bump: earthbump1k.png
+    #bump: earthbump1k.png
     ka: 0.2
     kd: 0.8
     ks: 0

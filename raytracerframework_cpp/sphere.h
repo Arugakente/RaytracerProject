@@ -30,8 +30,6 @@ public:
 
     virtual Hit intersect(const Ray &ray);
 	Vector getUV(Point hit, Vector n);
-
-	Vector uvUp = Vector(0, 1.0, 0);
     
     const long double r;
 };

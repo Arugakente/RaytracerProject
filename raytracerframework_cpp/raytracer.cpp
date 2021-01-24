@@ -217,16 +217,9 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 
 	if (objectType == "sphere") {
 		double r;
-		//Vector uvUp = Vector(0, 1.0, 0);
 
 		const YAML::Node& rad = node["radius"];
-		//if (rad.GetType() == YAML::CT_SCALAR) {
 		rad >> r;
-		//}
-		/*else if (rad.GetType() == YAML::CT_SEQUENCE) {
-			rad[0] >> r;
-			rad[1][0] >> uvUp()
-		}*/
 		Sphere *sphere = new Sphere(pos, rot, vel, r);
 		returnObject = sphere;
 	}

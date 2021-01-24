@@ -50,6 +50,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Point hit = ray.at(nearest.first.t);            //the hit point
 	Vector N = nearest.first.N;                     //the normal at hit point
 	Vector V = -ray.D;                              //the view vector
+	Vector transformedN = obj->applyTransformation(N); //transformed normal (to apply rotation on UV)
 
 	if (material->bump != nullptr) {
 		Vector n1 = Vector(N.y, -N.x, N.z);
@@ -60,7 +61,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		n2 = N.cross(n1);
 		n1 = N.cross(n2);
 
-		Point p = obj->getUV(hit, N);
+		Point p = obj->getUV(hit, transformedN);
 
 		double dx = 1.0 / (double) material->bump->width();
 		double dy = 1.0 / (double) material->bump->height();
@@ -210,7 +211,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 				color = (Ia + Id) * material->color + Is;
 			}
 			else {
-				color = (Ia + Id) * obj->getTexel(hit, N) + Is;
+				color = (Ia + Id) * obj->getTexel(hit, transformedN) + Is;
 			}
 	}
 
