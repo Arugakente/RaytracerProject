@@ -10,6 +10,8 @@ GoochParameters:
   alpha: 0.25
   beta: 0.5
   
+edgeLines: true 
+
 Shadows: false
 MaxRecursionDepth: 0
 

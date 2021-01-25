@@ -43,6 +43,7 @@ private:
 	int farPlane, nearPlane;
 
 	bool shadows;
+	bool edgeLines;
 
 	int maxRecursionDepth;
     int superSamplingFactor;
@@ -77,6 +78,7 @@ public:
 	void setMaxRecursionDepth(int i);
     void setLightSampling(int s);
 	void setExposureSamples(int s);
+	void setEdgeLines(bool el);
 
 	void setB(float b);
 	void setY(float y);

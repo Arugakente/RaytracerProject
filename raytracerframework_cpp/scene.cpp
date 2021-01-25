@@ -399,7 +399,7 @@ void Scene::render(Image &img)
 			}
 
 			//addition of the edgelines
-			if(renderMode == gooch)
+			if(edgeLines)
 			{
 				long double zValues[w][h];
 				//computing zbuffer
@@ -413,6 +413,7 @@ void Scene::render(Image &img)
             		}
 
 				//computing normalmap
+				renderMode_t previousMode = renderMode;
 				renderMode = normal;
 				std::vector<std::vector<Triple>> normals;
 				for (int x = 0; x < w; x++)
@@ -425,7 +426,7 @@ void Scene::render(Image &img)
             			normals.back().push_back(trace(ray, farPoint, nearPoint,0));
 					}
 				}
-				renderMode = gooch;
+				renderMode = previousMode;
 
 
 				for (int y = 1; y < h-1; y++)
@@ -558,4 +559,8 @@ void Scene::setAlpha(float a)
 void Scene::setBeta(float b)
 {
 	beta = b;
+}
+void Scene::setEdgeLines(bool el)
+{
+	edgeLines = el;
 }

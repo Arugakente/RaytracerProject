@@ -366,6 +366,15 @@ bool Raytracer::readScene(const std::string& inputFilename)
 				scene->setExposureSamples(1);
 			}
 
+			try
+			{
+				scene->setEdgeLines(doc["edgeLines"]);
+			}
+			catch(std::exception e)
+			{
+				scene->setEdgeLines(false);
+			}
+
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];
             if (sceneObjects.GetType() != YAML::CT_SEQUENCE) {
