@@ -284,8 +284,8 @@ float Scene::getContactZ(const Ray &ray)
 
 void Scene::render(Image &img)
 {
-	int w = img.width();
-	int h = img.height();
+	const int w = img.width();
+	const int h = img.height();
 
 	float nearPoint = std::numeric_limits<float>::min();
 	float farPoint = std::numeric_limits<float>::max();
@@ -401,16 +401,19 @@ void Scene::render(Image &img)
 			//addition of the edgelines
 			if(edgeLines)
 			{
-				long double zValues[w][h];
+				std::vector<std::vector<long double>> zValues;
 				//computing zbuffer
 				#pragma omp parallel for
-				for (int y = 0; y < h; y++)
-            		for (int x = 0; x < w; x++)
+				for (int x = 0; x < w; x++)
+				{
+					zValues.push_back(std::vector<long double>());
+            		for (int y = 0; y < h; y++)
             		{
                 		Point pixel(x, h-1-y, 0);
-						if (hasCamera) zValues[x][y] = getContactZ(camera->rayAt(pixel));
-						else zValues[x][y] = getContactZ(Ray(eye, (pixel - eye).normalized()));
+						if (hasCamera) zValues[x].push_back(getContactZ(camera->rayAt(pixel)));
+						else zValues[x].push_back(getContactZ(Ray(eye, (pixel - eye).normalized())));
             		}
+				}
 
 				//computing normalmap
 				renderMode_t previousMode = renderMode;
