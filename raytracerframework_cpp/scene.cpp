@@ -21,7 +21,6 @@
 #include "scene.h"
 #include "material.h"
 #include <algorithm>
-#include <cassert>
 
 
 std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
@@ -67,8 +66,22 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		//assert((-pu.cross(pv)).compare(transformedN)); //doesn't work only for 4 points (the delta is still okay)
 
-		//double Bu = obj->getUV(uv.x + du, uv.y) - obj->getUV(uv.x - du, uv.y)
-		//double Bv = obj->getUV(uv.x, uv.y + dv) - obj->getUV(uv.x, uv.y - dv)
+		double ddu1 = uv.x + du;
+		double ddu2 = uv.x - du;
+		double ddv1 = uv.y + dv;
+		double ddv2 = uv.y - dv;
+
+		ddu1 > 1.0 ? ddu1 : ddu1 - 1.0; //we check if we get out of the uv map (bounds case)
+		ddu2 < 1.0 ? ddu1 : ddu1 + 1.0;
+		ddv1 > 1.0 ? ddv1 : ddv1 - 1.0;
+		ddv2 < 1.0 ? ddu1 : ddu1 + 1.0;
+
+		double bu = material->bump->colorAt(ddu2, uv.y).length() - material->bump->colorAt(ddu1, uv.y).length();
+		double bv = material->bump->colorAt(uv.x, ddv2).length() - material->bump->colorAt(uv.x, ddv1).length();
+
+		N = obj->removeTransformation((transformedN + 2*bu*pu + 2*bv*pv).normalized());
+		//this 2 value is used to create a better effect.
+		//Since there isn't a normalized value to use, we decided to use this factor (it could be an external parameter in the YAML file too)
 	}
 
 
@@ -334,7 +347,7 @@ void Scene::render(Image &img)
 			double r=c*sqrt(n);
 			double th=n*goldenAngle;
 
-			//#pragma omp parallel for
+			#pragma omp parallel for
     		for (int y = 0; y < h; y++)
 			{
         		for (int x = 0; x < w; x++)

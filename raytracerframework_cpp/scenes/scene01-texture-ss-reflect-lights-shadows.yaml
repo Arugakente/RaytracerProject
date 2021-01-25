@@ -12,7 +12,7 @@
 #  The example scene description should largely speak for itself. By now
 #  it should be clear that the #-character can be used to insert comments.
 
-#RenderMode: uvBuffer
+#RenderMode: normal
 
 Eye: [200,200,1000]  
 
@@ -51,6 +51,7 @@ Objects:
   radius: 50
   material: # red
     color: [1.0,0.0,0.0]
+    bump: bumpscale.png
     ka: 0.2
     kd: 0.7
     ks: 0.8
