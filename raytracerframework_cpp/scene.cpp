@@ -403,7 +403,6 @@ void Scene::render(Image &img)
 			{
 				std::vector<std::vector<long double>> zValues;
 				//computing zbuffer
-				#pragma omp parallel for
 				for (int x = 0; x < w; x++)
 				{
 					zValues.push_back(std::vector<long double>());
