@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="cone.h" />
+    <ClInclude Include="constants.h" />
     <ClInclude Include="deg4solver.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="light.h" />

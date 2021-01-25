@@ -41,14 +41,46 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 {
 	// Find hit object and distance
 	std::pair<Hit,Object*> nearest = getNearestIntersectedObj(ray);
+	Object* obj = nearest.second;
 
 	// No hit? Return background color.
-	if (!nearest.second) return Color(0.0, 0.0, 0.0);
+	if (!obj) return Color(0.0, 0.0, 0.0);
 
-	Material *material = nearest.second->material;  //the hit objects material
+	Material *material = obj->material;  //the hit objects material
 	Point hit = ray.at(nearest.first.t);            //the hit point
 	Vector N = nearest.first.N;                     //the normal at hit point
 	Vector V = -ray.D;                              //the view vector
+	Vector transformedN = obj->applyTransformation(N); //transformed normal (to apply rotation on UV)
+
+	if (material->bump != nullptr) {
+
+		Point uv = obj->getUV(hit, transformedN);
+
+		double du = 1.0 / (double)material->bump->width();
+		double dv = 1.0 / (double)material->bump->height();
+
+		Vector pu = ( obj->getHit(uv.x + du, uv.y) - obj->getHit(uv.x - du, uv.y) ).normalized();
+		Vector pv = ( obj->getHit(uv.x, uv.y + dv) - obj->getHit(uv.x, uv.y - dv) ).normalized();
+
+		//assert((-pu.cross(pv)).compare(transformedN)); //doesn't work only for 4 points (the delta is still okay)
+
+		double ddu1 = uv.x + du;
+		double ddu2 = uv.x - du;
+		double ddv1 = uv.y + dv;
+		double ddv2 = uv.y - dv;
+
+		ddu1 = ddu1 > 0.0 ? ddu1 : ddu1 + 1.0; //we check if we get out of the uv map (bounds case)
+		ddu2 = ddu2 < 1.0 ? ddu2 : ddu2 - 1.0;
+		ddv1 = ddv1 > 0.0 ? ddv1 : ddv1 + 1.0;
+		ddv2 = ddv2 < 1.0 ? ddv2 : ddv2 - 1.0;
+
+		double bu = material->bump->colorAt(ddu2, uv.y).length() - material->bump->colorAt(ddu1, uv.y).length();
+		double bv = material->bump->colorAt(uv.x, ddv2).length() - material->bump->colorAt(uv.x, ddv1).length();
+
+		N = obj->removeTransformation((transformedN + 2*bu*pu + 2*bv*pv).normalized());
+		//this 2 value is used to create a better effect.
+		//Since there isn't a normalized value to use, we decided to use this factor (it could be an external parameter in the YAML file too)
+	}
 
 
 	//for semi-transparent objects, we do not consider hidden surfaces
@@ -78,9 +110,8 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Color color;
 
 	// Phong ------
-	if (renderMode == phong) 
+	if (renderMode == phong || renderMode == gooch)
 	{
-
 		Color Ia = Color(1.0, 1.0, 1.0);
 		Ia *= material->ka;
 
@@ -88,7 +119,7 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		Color Is = Color(0.0, 0.0, 0.0);
 
 		Color refractionColor = Color(0.0, 0.0, 0.0);
-		if (material->refract && currentReflexion < maxRecursionDepth) 
+		if (material->refract && currentReflexion < maxRecursionDepth)
 		{
 			Vector Vnorm = ray.D;
 			//Vnorm.normalize();
@@ -156,12 +187,33 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 						if (!shadows || !obstacle.second || t > (currentLight.position - hit).length()) 
 						{
-							long double cosineDiff = L.dot(N);
-							long double cosineSpec = R.dot(V);
-							if (cosineDiff >= 0.0)
-								currentId += currentLight.color * material->kd * cosineDiff;
-							if(cosineSpec >= 0.0)
-								currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+							if(renderMode == phong)
+							{
+								long double cosineDiff = L.dot(N);
+								long double cosineSpec = R.dot(V);
+								if (cosineDiff >= 0.0)
+									currentId += currentLight.color * material->kd * cosineDiff;
+								if(cosineSpec >= 0.0)
+									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+							}
+							else
+							{
+								long double cosineSpec = R.dot(V);
+
+								Color tmpId;
+								if (material->texture == nullptr)
+									tmpId = currentLight.color * material->color * material->kd;
+								else
+									tmpId = currentLight.color * obj->getTexel(hit, transformedN) * material->kd;
+
+
+								if(cosineSpec >= 0.0)
+									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+
+								Color Kcool = Color(0.0,0.0,this->b)+this->alpha*tmpId;
+								Color Kwarm = Color(this->y,this->y,0.0)+ this->beta*tmpId;
+								currentId += Kcool* (1 - N.dot(L))/2 + Kwarm* (1 +  N.dot(L))/2;
+							}
 						}
 					}
 				}
@@ -184,8 +236,18 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 		if(material->refract)
 			color = refractionColor + Is;
-		else
-			color = (Ia + Id) * material->color + Is;
+		else if(renderMode == phong)
+        {
+			if (material->texture == nullptr) {
+				color = (Ia + Id) * material->color + Is;
+			}
+			else {
+				color = (Ia + Id) * obj->getTexel(hit, transformedN) + Is;
+			}
+        }
+        else if(renderMode == gooch)
+			color = Id + Is;
+
 	}
 
 	// zBuffer ------
@@ -199,6 +261,12 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	else if (renderMode == normal) 
 	{
 		color = 0.5*N + 0.5*Vector(1.0, 1.0, 1.0);
+	}
+
+	else if (renderMode == uvBuffer)
+	{
+		Point uv = obj->getUV(hit, N);
+		color = Color(uv.x, 0, uv.y);
 	}
 
 	double alpha = material->alpha;
@@ -216,8 +284,8 @@ float Scene::getContactZ(const Ray &ray)
 
 void Scene::render(Image &img)
 {
-	int w = img.width();
-	int h = img.height();
+	const int w = img.width();
+	const int h = img.height();
 
 	float nearPoint = std::numeric_limits<float>::min();
 	float farPoint = std::numeric_limits<float>::max();
@@ -237,7 +305,7 @@ void Scene::render(Image &img)
 
 				if (hasCamera) currentPoint = getContactZ(camera->rayAt(pixel));
 				else currentPoint = getContactZ(Ray(eye, (pixel - eye).normalized()));
-					
+
                 if(currentPoint != std::numeric_limits<float>::infinity() && currentPoint != -std::numeric_limits<float>::infinity())
                 {
                     if(nearPoint<currentPoint)
@@ -294,7 +362,9 @@ void Scene::render(Image &img)
 			}
 		}
 
-		Point initialEye = camera->eye ;
+		Point initialEye;
+		if(hasCamera)
+			initialEye = camera->eye ;
 
 		Image tmp = Image(img.width(),img.height());
 		for(int n = 0;n<apertureSample ;n++)
@@ -314,7 +384,8 @@ void Scene::render(Image &img)
 						for(int xx = 1; xx<=superSamplingFactor;xx++)
 						{
 							int pixelIndex = ((x*w*xx*superSamplingFactor)+(y*yy));
-							camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
+							if(hasCamera)
+								camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
 
             				Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
 							Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
@@ -325,6 +396,60 @@ void Scene::render(Image &img)
 					}
 					tmp(x,y) += sumColor/(superSamplingFactor*superSamplingFactor);
         		}
+			}
+
+			//addition of the edgelines
+			if(edgeLines)
+			{
+				std::vector<std::vector<long double>> zValues;
+				//computing zbuffer
+				for (int x = 0; x < w; x++)
+				{
+					zValues.push_back(std::vector<long double>());
+            		for (int y = 0; y < h; y++)
+            		{
+                		Point pixel(x, h-1-y, 0);
+						if (hasCamera) zValues[x].push_back(getContactZ(camera->rayAt(pixel)));
+						else zValues[x].push_back(getContactZ(Ray(eye, (pixel - eye).normalized())));
+            		}
+				}
+
+				//computing normalmap
+				renderMode_t previousMode = renderMode;
+				renderMode = normal;
+				std::vector<std::vector<Triple>> normals;
+				for (int x = 0; x < w; x++)
+				{
+					normals.push_back(std::vector<Triple>());
+            		for (int y = 0; y < h; y++)
+					{
+						Point pixel(x, h-1-y, 0);
+						Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
+            			normals.back().push_back(trace(ray, farPoint, nearPoint,0));
+					}
+				}
+				renderMode = previousMode;
+
+
+				for (int y = 1; y < h-1; y++)
+            		for (int x = 1; x < w-1; x++)
+            		{
+						long double variation = (zValues[x-1][y-1] + 2*zValues[x-1][y] + zValues[x-1][y+1]
+								  		  	    +2*zValues[x][y-1] + -12*zValues[x][y] + 2*zValues[x][y+1]
+								  				+zValues[x+1][y-1] + 2*zValues[x+1][y] + zValues[x+1][y+1])/9;
+
+						if(variation*variation>1)
+							tmp(x,y) = Color(0,0,0);
+						else
+						{
+							Vector normVariation = ( normals[x-1][y-1] + 2*normals[x-1][y] + normals[x-1][y+1]
+													+2*normals[x][y-1] + -12*normals[x][y] + 2*normals[x][y+1]
+									  				+normals[x+1][y-1] + 2*normals[x+1][y] + normals[x+1][y+1])/9;
+
+							if(normVariation.length() > 0.1)
+								tmp(x,y) = Color(0,0,0);
+						}
+					}
 			}
     	}
 
@@ -338,10 +463,8 @@ void Scene::render(Image &img)
 	for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++)
 			img(x,y)/=exposureSampling;
+
 }
-
-
-
 
 void Scene::addObject(Object *o)
 {
@@ -421,4 +544,25 @@ void Scene::setLightSampling(int s)
 void Scene::setExposureSamples(int s)
 {
 	exposureSampling = s>1 ? s : 1;
+}
+
+void Scene::setB(float b)
+{
+	this->b =b;
+}
+void Scene::setY(float y)
+{
+	this->y = y;
+}
+void Scene::setAlpha(float a)
+{
+	alpha = a;
+}
+void Scene::setBeta(float b)
+{
+	beta = b;
+}
+void Scene::setEdgeLines(bool el)
+{
+	edgeLines = el;
 }

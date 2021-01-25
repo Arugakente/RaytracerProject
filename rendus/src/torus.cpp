@@ -80,3 +80,8 @@ Hit Torus::intersect(const Ray &ray)
 
     return Hit(t,N);
 }
+
+Point Torus::getHit(double u, double v)
+{
+	return Point(0, 0, 0);
+}

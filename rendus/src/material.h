@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include "triple.h"
+#include "image.h"
 
 class Material
 {
@@ -33,6 +34,8 @@ public:
 	bool refract;       // indicates if the object refract ray
 	double eta = 1.0;        // index of refraction
 	double alpha;
+	Image *texture;
+	Image* bump;
 
     Material() { }
 };

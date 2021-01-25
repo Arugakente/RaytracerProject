@@ -102,14 +102,18 @@ Camera* Raytracer::parseCamera(const YAML::Node& node)
 
 renderMode_t Raytracer::parseRenderMode(const YAML::Node& node)
 {
-	if (node == "zbuffer")
+	if (node == "phong")
+		return phong;
+	else if (node == "zbuffer")
 		return zBuffer;
 	else if (node == "zbufferAuto")
 		return zBufferAuto;
 	else if (node == "normal")
 		return normal;
-	else if (node == "phong")
-		return phong;
+	else if (node == "uvBuffer")
+		return uvBuffer;
+	else if (node == "gooch")
+		return gooch;
 	else
 		return phong;
 }
@@ -130,6 +134,15 @@ int Raytracer::parseMaxRecursionDepth(const YAML::Node& node)
 	return 0;
 }
 
+float Raytracer::parseGoochParams(const YAML::Node& node)
+{
+	float toReturn;
+	node >> toReturn;
+
+	if (toReturn >= 0 && toReturn <= 1) return toReturn;
+	return 0;
+}
+
 Triple parseTriple(const YAML::Node& node)
 {
     Triple t;
@@ -142,7 +155,13 @@ Triple parseTriple(const YAML::Node& node)
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
 	Material *m = new Material();
-	node["color"] >> m->color;
+
+	try {
+		node["color"] >> m->color;
+	}
+	catch (exception e) {
+		m->color = Color(0, 0, 0);
+	}
 	node["ka"] >> m->ka;
 	node["kd"] >> m->kd;
 	node["ks"] >> m->ks;
@@ -161,6 +180,22 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
 	}
 	catch (std::exception e) {
 		m->alpha = 1.0;
+	}
+
+	try {
+		string textureFile = node["texture"];
+		m->texture = new Image(textureFile.c_str());
+	}
+	catch (std::exception e) {
+		m->texture = nullptr;
+	}
+
+	try {
+		string bumpFile = node["bump"];
+		m->bump = new Image(bumpFile.c_str());
+	}
+	catch (std::exception e) {
+		m->bump = nullptr;
 	}
 
     return m;
@@ -193,7 +228,9 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 
 	if (objectType == "sphere") {
 		double r;
-		node["radius"] >> r;
+
+		const YAML::Node& rad = node["radius"];
+		rad >> r;
 		Sphere *sphere = new Sphere(pos, rot, vel, r);
 		returnObject = sphere;
 	}
@@ -284,9 +321,16 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			catch (std::exception e) { 
 				scene->setShadows(false); 
 			}
-			
+
 			try { 
 				scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
+				if(scene->getRenderMode() == gooch)
+				{
+					scene->setB(parseGoochParams(doc["GoochParameters"]["b"]));
+					scene->setY(parseGoochParams(doc["GoochParameters"]["y"]));
+					scene->setAlpha(parseGoochParams(doc["GoochParameters"]["alpha"]));
+					scene->setBeta(parseGoochParams(doc["GoochParameters"]["beta"]));
+				}
 			}
 			catch (std::exception e) { 
 				scene->setRenderMode(phong);
@@ -320,6 +364,15 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			}
 			catch (std::exception e) {
 				scene->setExposureSamples(1);
+			}
+
+			try
+			{
+				scene->setEdgeLines(doc["edgeLines"]);
+			}
+			catch(std::exception e)
+			{
+				scene->setEdgeLines(false);
 			}
 
             // Read and parse the scene objects
