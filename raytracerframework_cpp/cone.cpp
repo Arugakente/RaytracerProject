@@ -108,3 +108,8 @@ long double Cone::solveDisc(const Ray &ray, Vector V) {
 
 	return t;
 }
+
+Point Cone::getHit(double u, double v)
+{
+	return Point(0, 0, 0);
+}

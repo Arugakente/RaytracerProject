@@ -41,14 +41,48 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 {
 	// Find hit object and distance
 	std::pair<Hit,Object*> nearest = getNearestIntersectedObj(ray);
+	Object* obj = nearest.second;
 
 	// No hit? Return background color.
-	if (!nearest.second) return Color(0.0, 0.0, 0.0);
+	if (!obj) return Color(0.0, 0.0, 0.0);
 
-	Material *material = nearest.second->material;  //the hit objects material
+	Material *material = obj->material;  //the hit objects material
 	Point hit = ray.at(nearest.first.t);            //the hit point
 	Vector N = nearest.first.N;                     //the normal at hit point
 	Vector V = -ray.D;                              //the view vector
+	Vector transformedN = obj->applyTransformation(N); //transformed normal (to apply rotation on UV)
+
+	Vector uv = obj->getUV(hit, transformedN);
+
+	if (material->bump != nullptr) {
+
+		Point uv = obj->getUV(hit, transformedN);
+
+		double du = 1.0 / (double)material->bump->width();
+		double dv = 1.0 / (double)material->bump->height();
+
+		Vector pu = ( obj->getHit(uv.x + du, uv.y) - obj->getHit(uv.x - du, uv.y) ).normalized();
+		Vector pv = ( obj->getHit(uv.x, uv.y + dv) - obj->getHit(uv.x, uv.y - dv) ).normalized();
+
+		//assert((-pu.cross(pv)).compare(transformedN)); //doesn't work only for 4 points (the delta is still okay)
+
+		double ddu1 = uv.x + du;
+		double ddu2 = uv.x - du;
+		double ddv1 = uv.y + dv;
+		double ddv2 = uv.y - dv;
+
+		ddu1 > 1.0 ? ddu1 : ddu1 - 1.0; //we check if we get out of the uv map (bounds case)
+		ddu2 < 1.0 ? ddu1 : ddu1 + 1.0;
+		ddv1 > 1.0 ? ddv1 : ddv1 - 1.0;
+		ddv2 < 1.0 ? ddu1 : ddu1 + 1.0;
+
+		double bu = material->bump->colorAt(ddu2, uv.y).length() - material->bump->colorAt(ddu1, uv.y).length();
+		double bv = material->bump->colorAt(uv.x, ddv2).length() - material->bump->colorAt(uv.x, ddv1).length();
+
+		N = obj->removeTransformation((transformedN + 2*bu*pu + 2*bv*pv).normalized());
+		//this 2 value is used to create a better effect.
+		//Since there isn't a normalized value to use, we decided to use this factor (it could be an external parameter in the YAML file too)
+	}
 
 
 	//for semi-transparent objects, we do not consider hidden surfaces
@@ -185,7 +219,12 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		if(material->refract)
 			color = refractionColor + Is;
 		else
-			color = (Ia + Id) * material->color + Is;
+			if (material->texture == nullptr) {
+				color = (Ia + Id) * material->color + Is;
+			}
+			else {
+				color = (Ia + Id) * obj->getTexel(hit, transformedN) + Is;
+			}
 	}
 
 	// zBuffer ------
@@ -199,6 +238,12 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	else if (renderMode == normal) 
 	{
 		color = 0.5*N + 0.5*Vector(1.0, 1.0, 1.0);
+	}
+
+	else if (renderMode == uvBuffer)
+	{
+		Point uv = obj->getUV(hit, N);
+		color = Color(uv.x, 0, uv.y);
 	}
 
 	double alpha = material->alpha;
@@ -294,7 +339,7 @@ void Scene::render(Image &img)
 			}
 		}
 
-		Point initialEye = camera->eye ;
+		Point initialEye = hasCamera ? camera->eye : eye;
 
 		Image tmp = Image(img.width(),img.height());
 		for(int n = 0;n<apertureSample ;n++)
@@ -314,7 +359,9 @@ void Scene::render(Image &img)
 						for(int xx = 1; xx<=superSamplingFactor;xx++)
 						{
 							int pixelIndex = ((x*w*xx*superSamplingFactor)+(y*yy));
-							camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
+
+							if (hasCamera) camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
+							else eye = Point(initialEye.x + r + fmod(pixelIndex*1.61803398875, 1.0)*cos(th + pixelIndex), initialEye.y + r * sin(th + pixelIndex), eye.z);
 
             				Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
 							Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
