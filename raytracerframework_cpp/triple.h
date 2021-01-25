@@ -218,6 +218,17 @@ public:
             long double b;
         };
     };
+
+	bool operator==(const Triple &t) 
+	{
+		return (x == t.x && y == t.y && z == t.z);
+	}
+
+	bool compare(const Triple &t, double delta = 0.00001)
+	{
+		return (x - t.x <= delta && y - t.y <= delta && z - t.z <= delta);
+	}
+
 };
 
 typedef Triple Color;

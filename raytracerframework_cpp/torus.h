@@ -30,6 +30,7 @@ public:
     Torus(Point position, Triple rotation, Triple velocity, long double r,long double R) : Object(position, rotation, velocity), r(r), R(R) { }
 
     virtual Hit intersect(const Ray &ray);
+	Point getHit(double u, double v);
 
     const long double r;
     const long double R;

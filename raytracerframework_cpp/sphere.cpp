@@ -87,3 +87,17 @@ Vector Sphere::getUV(Point hit, Vector n)
 {
 	return Vector(atan2(n.z, -n.x) / (2*PI) + 0.5, -(asinf(n.y) / PI) + 0.5, 0.0);
 }
+
+Point Sphere::getHit(double u, double v)
+{
+    Vector normal = Vector(0.0, 0.0, 0.0);
+    normal.y = sinf((-(v - 0.5)) * PI); //normalized
+
+	double len = sqrt(1.0 - normal.y * normal.y); //get the len of x and z
+    normal.x = len * -cosf(2*PI * (u - 0.5));
+    normal.z = len * sinf(2*PI * (u - 0.5));
+
+	//normal = applyTransformation(normal); //Not needed
+
+    return r*normal + position;
+}

@@ -31,6 +31,8 @@ public:
 	virtual Hit intersect(const Ray &ray);
 	long double solveDisc(const Ray &ray, Vector V);
 
+	Point getHit(double u, double v);
+
 	const long double r;
 	const long double h;
 };

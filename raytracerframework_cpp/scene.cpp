@@ -21,6 +21,7 @@
 #include "scene.h"
 #include "material.h"
 #include <algorithm>
+#include <cassert>
 
 
 std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
@@ -52,24 +53,22 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Vector V = -ray.D;                              //the view vector
 	Vector transformedN = obj->applyTransformation(N); //transformed normal (to apply rotation on UV)
 
+	Vector uv = obj->getUV(hit, transformedN);
+
 	if (material->bump != nullptr) {
-		Vector n1 = Vector(N.y, -N.x, N.z);
-		Vector n2 = N.cross(n1).normalized();
-		n1 = N.cross(n2).normalized();
 
-		n1 = Vector(n1.x, 0, n1.z).normalized();
-		n2 = N.cross(n1);
-		n1 = N.cross(n2);
+		Point uv = obj->getUV(hit, transformedN);
 
-		Point p = obj->getUV(hit, transformedN);
+		double du = 1.0 / (double)material->bump->width();
+		double dv = 1.0 / (double)material->bump->height();
 
-		double dx = 1.0 / (double) material->bump->width();
-		double dy = 1.0 / (double) material->bump->height();
+		Vector pu = ( obj->getHit(uv.x + du, uv.y) - obj->getHit(uv.x - du, uv.y) ).normalized();
+		Vector pv = ( obj->getHit(uv.x, uv.y + dv) - obj->getHit(uv.x, uv.y - dv) ).normalized();
 
-		double du = abs(material->bump->colorAt(p.x+dx, p.y).length() - material->bump->colorAt(p.x-dx, p.y).length()) / (2*dx);
-		double dv = abs(material->bump->colorAt(p.x, p.y+dy).length() - material->bump->colorAt(p.x, p.y-dy).length()) / (2*dy);
+		//assert((-pu.cross(pv)).compare(transformedN)); //doesn't work only for 4 points (the delta is still okay)
 
-		N = (N + du*n1 + dv*n1).normalized();
+		//double Bu = obj->getUV(uv.x + du, uv.y) - obj->getUV(uv.x - du, uv.y)
+		//double Bv = obj->getUV(uv.x, uv.y + dv) - obj->getUV(uv.x, uv.y - dv)
 	}
 
 
@@ -335,7 +334,7 @@ void Scene::render(Image &img)
 			double r=c*sqrt(n);
 			double th=n*goldenAngle;
 
-			#pragma omp parallel for
+			//#pragma omp parallel for
     		for (int y = 0; y < h; y++)
 			{
         		for (int x = 0; x < w; x++)

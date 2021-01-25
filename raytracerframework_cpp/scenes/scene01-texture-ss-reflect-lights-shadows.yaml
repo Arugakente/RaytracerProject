@@ -62,7 +62,7 @@ Objects:
   angle: 90
   material:
     texture: earthmap1k.png
-    #bump: earthbump1k.png
+    bump: earthbump1k.png
     ka: 0.2
     kd: 0.8
     ks: 0

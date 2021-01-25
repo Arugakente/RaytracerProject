@@ -47,6 +47,7 @@ public:
 
 	Color getTexel(Point hit, Vector n);
 	virtual Vector getUV(Point hit, Vector n); //we could specify a certain type of uv mapping
+    virtual Point getHit(double u, double v) =0; //inverse function of getUV
 };
 
 #endif /* end of include guard: OBJECT_H_AXKLE0OF */
