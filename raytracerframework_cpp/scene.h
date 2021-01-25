@@ -30,7 +30,7 @@
 #include "image.h"
 #include "camera.h"
 
-enum renderMode_t{phong, zBuffer, zBufferAuto, normal, uvBuffer};
+enum renderMode_t{phong, gooch , zBuffer, zBufferAuto, normal, uvBuffer};
 
 class Scene
 {
@@ -49,6 +49,10 @@ private:
 
     int lightSampling;
 	int exposureSampling;
+	float b;
+	float y;
+	float alpha;
+	float beta;
 	
     std::vector<Object*> objects;
     std::vector<Light*> lights;
@@ -73,6 +77,11 @@ public:
 	void setMaxRecursionDepth(int i);
     void setLightSampling(int s);
 	void setExposureSamples(int s);
+
+	void setB(float b);
+	void setY(float y);
+	void setAlpha(float a);
+	void setBeta(float b);
 
 	int getWidth();
 	int getHeight();

@@ -112,6 +112,8 @@ renderMode_t Raytracer::parseRenderMode(const YAML::Node& node)
 		return normal;
 	else if (node == "uvBuffer")
 		return uvBuffer;
+	else if (node == "gooch")
+		return gooch;
 	else
 		return phong;
 }
@@ -129,6 +131,15 @@ int Raytracer::parseMaxRecursionDepth(const YAML::Node& node)
 	int i;
 	node >> i;
 	if (i >= 0 && i <= 20) return i;
+	return 0;
+}
+
+float Raytracer::parseGoochParams(const YAML::Node& node)
+{
+	float toReturn;
+	node >> toReturn;
+
+	if (toReturn >= 0 && toReturn <= 1) return toReturn;
 	return 0;
 }
 
@@ -310,9 +321,16 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			catch (std::exception e) { 
 				scene->setShadows(false); 
 			}
-			
+
 			try { 
 				scene->setRenderMode(parseRenderMode(doc["RenderMode"]));
+				if(scene->getRenderMode() == gooch)
+				{
+					scene->setB(parseGoochParams(doc["GoochParameters"]["b"]));
+					scene->setY(parseGoochParams(doc["GoochParameters"]["y"]));
+					scene->setAlpha(parseGoochParams(doc["GoochParameters"]["alpha"]));
+					scene->setBeta(parseGoochParams(doc["GoochParameters"]["beta"]));
+				}
 			}
 			catch (std::exception e) { 
 				scene->setRenderMode(phong);
