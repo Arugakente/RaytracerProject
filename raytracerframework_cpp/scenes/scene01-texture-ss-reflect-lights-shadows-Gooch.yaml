@@ -21,6 +21,11 @@ GoochParameters:
 
 Eye: [200,200,1000]
 
+Shadows: false
+MaxRecursionDepth: 2
+SuperSampling:
+  factor: 4
+
 Lights:
 - position: [-1000,600,400]
   color: [1.0,1.0,1.0]
@@ -49,18 +54,22 @@ Objects:
   radius: 50
   material: # red
     color: [1.0,0.0,0.0]
+    bump: bumpscale.png
     ka: 0.2
     kd: 0.7
     ks: 0.8
     n: 32
 - type: sphere
   position: [140,220,400]
+  rotation: [35.0, 90.0, 0.0]
   radius: 50
-  material: # yellow
-    color: [1.0,0.8,0.0]
+  angle: 90
+  material:
+    texture: earthmap1k.png
+    bump: earthbump1k.png
     ka: 0.2
     kd: 0.8
-    ks: 0.0
+    ks: 0
     n: 1
 - type: sphere
   position: [110,130,200]

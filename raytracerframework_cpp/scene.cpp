@@ -52,8 +52,6 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	Vector V = -ray.D;                              //the view vector
 	Vector transformedN = obj->applyTransformation(N); //transformed normal (to apply rotation on UV)
 
-	Vector uv = obj->getUV(hit, transformedN);
-
 	if (material->bump != nullptr) {
 
 		Point uv = obj->getUV(hit, transformedN);
@@ -71,10 +69,10 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		double ddv1 = uv.y + dv;
 		double ddv2 = uv.y - dv;
 
-		ddu1 > 1.0 ? ddu1 : ddu1 - 1.0; //we check if we get out of the uv map (bounds case)
-		ddu2 < 1.0 ? ddu1 : ddu1 + 1.0;
-		ddv1 > 1.0 ? ddv1 : ddv1 - 1.0;
-		ddv2 < 1.0 ? ddu1 : ddu1 + 1.0;
+		ddu1 = ddu1 > 0.0 ? ddu1 : ddu1 + 1.0; //we check if we get out of the uv map (bounds case)
+		ddu2 = ddu2 < 1.0 ? ddu2 : ddu2 - 1.0;
+		ddv1 = ddv1 > 0.0 ? ddv1 : ddv1 + 1.0;
+		ddv2 = ddv2 < 1.0 ? ddv2 : ddv2 - 1.0;
 
 		double bu = material->bump->colorAt(ddu2, uv.y).length() - material->bump->colorAt(ddu1, uv.y).length();
 		double bv = material->bump->colorAt(uv.x, ddv2).length() - material->bump->colorAt(uv.x, ddv1).length();
@@ -201,7 +199,13 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 							else
 							{
 								long double cosineSpec = R.dot(V);
-								Color tmpId = currentLight.color * material->color * material->kd;
+
+								Color tmpId;
+								if (material->texture == nullptr)
+									tmpId = currentLight.color * material->color * material->kd;
+								else
+									tmpId = currentLight.color * obj->getTexel(hit, transformedN) * material->kd;
+
 
 								if(cosineSpec >= 0.0)
 									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
@@ -233,13 +237,13 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 		if(material->refract)
 			color = refractionColor + Is;
 		else if(renderMode == phong)
-        {    
+        {
 			if (material->texture == nullptr) {
 				color = (Ia + Id) * material->color + Is;
 			}
 			else {
 				color = (Ia + Id) * obj->getTexel(hit, transformedN) + Is;
-			}    
+			}
         }
         else if(renderMode == gooch)
 			color = Id + Is;
@@ -358,7 +362,9 @@ void Scene::render(Image &img)
 			}
 		}
 
-		Point initialEye = camera->eye ;
+		Point initialEye;
+		if(hasCamera)
+			initialEye = camera->eye ;
 
 		Image tmp = Image(img.width(),img.height());
 		for(int n = 0;n<apertureSample ;n++)
@@ -378,10 +384,8 @@ void Scene::render(Image &img)
 						for(int xx = 1; xx<=superSamplingFactor;xx++)
 						{
 							int pixelIndex = ((x*w*xx*superSamplingFactor)+(y*yy));
-							camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
-
-							if (hasCamera) camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
-							else eye = Point(initialEye.x + r + fmod(pixelIndex*1.61803398875, 1.0)*cos(th + pixelIndex), initialEye.y + r * sin(th + pixelIndex), eye.z);
+							if(hasCamera)
+								camera->eye = Point(initialEye.x+r+fmod(pixelIndex*1.61803398875,1.0)*cos(th+pixelIndex),initialEye.y+r*sin(th+pixelIndex),camera->eye.z);
 
             				Point pixel(x+(offsetX*xx), h-1-y+(offsetY*yy), 0);
 							Ray ray = hasCamera ? camera->rayAt(pixel) : Ray(eye, (pixel - eye).normalized()) ;
