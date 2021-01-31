@@ -21,6 +21,9 @@
 #include "sphere.h"
 #include "torus.h"
 #include "cone.h"
+#include "triangle.h"
+#include "disc.h"
+#include "plane.h"
 #include "material.h"
 #include "light.h"
 #include "image.h"
@@ -233,6 +236,28 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		rad >> r;
 		Sphere *sphere = new Sphere(pos, rot, vel, r);
 		returnObject = sphere;
+	}
+	if (objectType == "disc") {
+		double r;
+
+		const YAML::Node& rad = node["radius"];
+		rad >> r;
+		Disc *disc = new Disc(pos, rot, vel, r);
+		returnObject = disc;
+	}
+	if (objectType == "plane") 
+	{
+		Plane *plane = new Plane(pos, rot, vel);
+		returnObject = plane;
+	}
+	if (objectType == "triangle") {
+		Point v1,v2,v3;
+
+		node["v1"] >> v1;
+		node["v2"] >> v2;
+		node["v3"] >> v3;
+		Triangle *triangle = new Triangle(pos, rot, vel, v1,v2,v3);
+		returnObject = triangle;
 	}
 	if (objectType == "torus") {
 		double R;
