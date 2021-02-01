@@ -22,20 +22,20 @@ Hit Triangle::intersect(const Ray &ray)
 	Vector intersect = TransformedRay.O + t * TransformedRay.D;
 
 	//check if inside the triangle
-	Vector e1 = v1Offset-v2Offset;
-	Vector e2 = v2Offset-v3Offset;
-	Vector e3 = v3Offset-v1Offset;
+	Vector e1 = v2Offset-v1Offset;
+	Vector e2 = v3Offset-v2Offset;
+	Vector e3 = v1Offset-v3Offset;
 
 	Vector C0 = intersect - v1Offset;
 	Vector C1 = intersect - v2Offset;
 	Vector C2 = intersect - v3Offset;
 
-	if (N.dot(e1.cross(C0)) <= 0  ||
+	if (N.dot(e1.cross(C0)) <= 0 ||
     	N.dot(e2.cross(C1)) <= 0 ||
     	N.dot(e3.cross(C2)) <= 0)
 		return Hit::NO_HIT();
 
-
+	N = removeTransformation(N);
 	return Hit(t, N);
 }
 

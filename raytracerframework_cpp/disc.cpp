@@ -25,6 +25,7 @@ Hit Disc::intersect(const Ray &ray)
 
 	if (distToCenter > r) return Hit::NO_HIT();
 
+	N = removeTransformation(N);
 	return Hit(t,N);
 }
 
