@@ -97,6 +97,10 @@ long double Cone::solveDisc(const Ray &ray, Vector V) {
 	Vector CO = -ray.O; //C - ray.O with C = (0,0,0)
 	Vector N = -V;
 
+	//if parallel to circle,prevent 0 division.
+	if(N.dot(ray.D) == 0)
+		return -1.0;
+
 	long double t = (CO.dot(N) / N.dot(ray.D));
 
 	if (t < 0) return -1.0;
