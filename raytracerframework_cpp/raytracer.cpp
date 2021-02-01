@@ -24,6 +24,7 @@
 #include "triangle.h"
 #include "disc.h"
 #include "plane.h"
+#include "mesh.h"
 #include "material.h"
 #include "light.h"
 #include "image.h"
@@ -274,6 +275,14 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		node["height"] >> h;
 		Cone *cone = new Cone(pos, rot, vel, r, h);
 		returnObject = cone;
+	}
+	if (objectType == "mesh") {
+		string file = node["file"];
+		char *cstr = new char[file.length() + 1];
+		strcpy(cstr, file.c_str());
+		Mesh *mesh = new Mesh(pos, rot, vel, cstr);
+		returnObject = mesh;
+		delete[] cstr;
 	}
 
     if (returnObject) {

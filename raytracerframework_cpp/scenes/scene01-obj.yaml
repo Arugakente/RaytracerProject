@@ -1,0 +1,103 @@
+---
+#  This is an example scene description for the raytracer framework created 
+#  for the Computer Science course "Introduction to Computer Graphics"
+#  taught at the University of Groningen by Tobias Isenberg.
+#
+#  The scene description format we use is based on YAML, which is a human friendly 
+#  data serialization standard. This gives us a flexible format which should be
+#  fairly easy to make both backward and forward compatible (i.e., by ignoring
+#  unknown directives). In addition parsers are available for many languages.
+#  See http://www.yaml.org/ for more information on YAML.
+#
+#  The example scene description should largely speak for itself. By now
+#  it should be clear that the #-character can be used to insert comments.
+
+RenderMode: "phong"
+
+Eye: [200,200,1000]  
+
+Lights:
+- position: [-200,600,1500]
+  color: [1.0,1.0,1.0]
+
+Objects:
+- type: plane
+  position: [200,200,0]
+  rotation: [0.0,0.0,0.0]
+  v1: [0,25,0]
+  v2: [25,-25,0]
+  v3: [-25,-25,0]
+  material: # blue
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+- type: triangle
+  position: [200,200,600]
+  rotation: [-13.0,-13.0,0.0]
+  v1: [0,25,0]
+  v2: [-25,-25,0]
+  v3: [25,-25,0]
+  material: # blue
+    color: [0.0,0.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+- type: disc
+  position: [200,200,500]
+  rotation: [-10.0,-10.0,0.0]
+  radius : 50
+  material: # blue
+    color: [0.0,1.0,0.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+- type: sphere
+  position: [210,270,300]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # green
+    color: [0.0,1.0,0.0]
+    ka: 0.2
+    kd: 0.3
+    ks: 0.5
+    n: 8
+    refract: false
+- type: sphere
+  position: [290,170,150]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # red
+    color: [1.0,0.0,0.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.8
+    n: 32
+    refract: false
+- type: sphere
+  position: [140,220,400]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # yellow
+    color: [1.0,0.8,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.0
+    n: 1
+    refract: false
+- type: mesh
+  position: [110,130,200]
+  file: "fox.obj"
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.5
+    n: 32
+    refract: false

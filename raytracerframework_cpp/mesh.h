@@ -5,13 +5,15 @@
 
 class Mesh : public Object
 {
+public:
 	GLMmodel* model;
-
-
-	Mesh(Point position, Triple rotation, Triple velocity, char* filename) : Object(position, rotation, velocity) 
+	                                                                       //could be used
+	Mesh(Point position, Triple rotation, Triple velocity, char* objfile, char* mtlfile = "") : Object(position, rotation, velocity) 
 	{
-		model = glmReadOBJ(filename);
+		model = glmReadOBJ(objfile);
+		std::cout << model->numvertices << std::endl;
 	}
+
 
 	virtual Hit intersect(const Ray &ray);
 	Vector getUV(Point hit, Vector n);
