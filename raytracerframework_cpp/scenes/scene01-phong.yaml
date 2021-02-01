@@ -35,11 +35,11 @@ Objects:
     n: 64
     refract: false
 - type: triangle
-  position: [200,200,501]
-  rotation: [0.0,-45.0,0.0,]
+  position: [200,200,600]
+  rotation: [-13.0,-13.0,0.0]
   v1: [0,25,0]
-  v2: [25,-25,0]
-  v3: [-25,-25,0]
+  v2: [-25,-25,0]
+  v3: [25,-25,0]
   material: # blue
     color: [0.0,0.0,1.0]
     ka: 0.2

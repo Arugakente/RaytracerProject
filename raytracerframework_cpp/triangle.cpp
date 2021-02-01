@@ -9,7 +9,7 @@ Hit Triangle::intersect(const Ray &ray)
 	Ray TransformedRay = transform(ray);
 
     Vector CO = -TransformedRay.O; //C - ray.O with C = (0,0,0)
-	Vector N = (v3Offset-v1Offset).cross(v2Offset-v1Offset);
+	Vector N = (v2Offset-v1Offset).cross(v3Offset-v1Offset);
 	N.normalize();
 
 	if(N.dot(TransformedRay.D) == 0)
@@ -32,7 +32,7 @@ Hit Triangle::intersect(const Ray &ray)
 
 	if (N.dot(e1.cross(C0)) <= 0 ||
     	N.dot(e2.cross(C1)) <= 0 ||
-    	N.dot(e3.cross(C2)) <= 0)
+    	N.dot(e3.cross(C2)) <= 0 )
 		return Hit::NO_HIT();
 
 	N = removeTransformation(N);
