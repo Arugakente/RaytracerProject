@@ -21,6 +21,7 @@
 #include "sphere.h"
 #include "torus.h"
 #include "cone.h"
+#include "csg.h"
 #include "triangle.h"
 #include "disc.h"
 #include "plane.h"
@@ -204,7 +205,7 @@ Material* Raytracer::parseMaterial(const YAML::Node& node)
     return m;
 }
 
-Object* Raytracer::parseObject(const YAML::Node& node)
+Object* Raytracer::parseObject(const YAML::Node& node,bool subobject = false)
 {
     Object *returnObject = NULL;
     std::string objectType;
@@ -275,8 +276,27 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		Cone *cone = new Cone(pos, rot, vel, r, h);
 		returnObject = cone;
 	}
+	if(objectType == "csg")
+	{
+		Csg *csg = new Csg(pos,rot,vel);
 
-    if (returnObject) {
+		const YAML::Node& subObjects = node["Composants"];
+        if (subObjects.GetType() != YAML::CT_SEQUENCE) {
+            cerr << "Error: expected a sequence of objects." << endl;
+            throw new std::exception;
+        }
+        for(YAML::Iterator it=subObjects.begin();it!=subObjects.end();++it) 
+		{
+			Object* inerElement = parseObject((*it)["object"],true);
+			if((*it)["mode"] == "union")
+				csg->addElement(inerElement,Union);
+			else
+				csg->addElement(inerElement,Intersect);
+		}
+		returnObject = csg;
+	}
+
+    if (returnObject && !subobject) {
         // read the material and attach to object
         returnObject->material = parseMaterial(node["material"]);
     }

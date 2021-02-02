@@ -372,9 +372,10 @@ void Scene::render(Image &img)
 			double r=c*sqrt(n);
 			double th=n*goldenAngle;
 
-			#pragma omp parallel for
+			//#pragma omp parallel for
     		for (int y = 0; y < h; y++)
 			{
+				//#pragma omp parallel for
         		for (int x = 0; x < w; x++)
 				{
 					Color sumColor = Color(0.0,0.0,0.0);
