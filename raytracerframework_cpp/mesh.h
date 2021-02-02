@@ -7,11 +7,12 @@ class Mesh : public Object
 {
 public:
 	GLMmodel* model;
-	                                                                       //could be used
-	Mesh(Point position, Triple rotation, Triple velocity, char* objfile, char* mtlfile = "") : Object(position, rotation, velocity) 
+
+	Mesh(Point position, Triple rotation, Triple velocity, char* objfile) : Object(position, rotation, velocity) 
 	{
 		model = glmReadOBJ(objfile);
 		std::cout << model->numvertices << std::endl;
+		std::cout << position << std::endl;
 	}
 
 

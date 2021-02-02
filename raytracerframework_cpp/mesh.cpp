@@ -6,34 +6,39 @@ Hit Mesh::intersect(const Ray &ray)
 {
 	Hit res = Hit(std::numeric_limits<double>::infinity(), Vector(0, 0, 0));
 
+	bool hasIntersected = false;
+
 	for (size_t k = 0; k < model->numtriangles; k++) //for each triangle
 	{
-		GLMtriangle* tr = model->triangles + k * sizeof(GLMtriangle);
+		GLMtriangle* tr = model->triangles + k;
 
-		float* v1 = model->vertices + 3 * tr->vindices[0] * sizeof(float);
-		float* v2 = model->vertices + 3 * tr->vindices[1] * sizeof(float);
-		float* v3 = model->vertices + 3 * tr->vindices[2] * sizeof(float);
+		float* v1 = model->vertices + 3 * tr->vindices[0];
+		float* v2 = model->vertices + 3 * tr->vindices[1];
+		float* v3 = model->vertices + 3 * tr->vindices[2];
+		
+		Point p1 = Point(*v1, *(v1 + 1), *(v1 + 2)) /*+ position*/;
+		Point p2 = Point(*v2, *(v2 + 1), *(v2 + 2)) /*+ position*/;
+		Point p3 = Point(*v3, *(v3 + 1), *(v3 + 2)) /*+ position*/; //real position in scene (not relative to object)
 
-		Point p1 = Point(*v1, *(v1 + sizeof(float)), *(v1 + 2 * sizeof(float))) + position;
-		Point p2 = Point(*v2, *(v2 + sizeof(float)), *(v2 + 2 * sizeof(float))) + position;
-		Point p3 = Point(*v3, *(v3 + sizeof(float)), *(v3 + 2 * sizeof(float))) + position; //real position in scene (not relative to object)
+		//std::cout << p1 << " | " << p2 << " | " << p3 << std::endl;
 
-		Ray TransformedRay = transform(ray);
+		Ray TransformedRay = ray; //transform(ray);
 
 		Vector CO = -TransformedRay.O; //C - ray.O with C = (0,0,0)
 		Vector N = (p2 - p1).cross(p3 - p1);
 		N.normalize();
 
 		if (N.dot(TransformedRay.D) == 0)
-			return Hit::NO_HIT();
+			continue; //return Hit::NO_HIT();
 
 		long double t = (CO.dot(N) / N.dot(TransformedRay.D));
 
-		if (t < 0) return Hit::NO_HIT();
+		if (t < 0) continue; //return Hit::NO_HIT();
 
 
 		Vector intersect = TransformedRay.O + t * TransformedRay.D;
 
+		//std::cout << intersect << std::endl;
 
 		//check if inside the triangle
 		Vector e1 = p2 - p1;
@@ -44,15 +49,25 @@ Hit Mesh::intersect(const Ray &ray)
 		Vector C1 = intersect - p2;
 		Vector C2 = intersect - p3;
 
+		
 		if (N.dot(e1.cross(C0)) <= 0 ||
 			N.dot(e2.cross(C1)) <= 0 ||
 			N.dot(e3.cross(C2)) <= 0)
-			return Hit::NO_HIT();
+			continue; //return Hit::NO_HIT();
+		
+		//N = removeTransformation(N);
 
-		N = removeTransformation(N);
-
-		if (t < res.t) res = Hit(t, N);
+		if (t < res.t)
+		{
+			if (!hasIntersected) hasIntersected = true;
+			res = Hit(t, N);
+			//std::cout << "ok" << std::endl;
+		}
 	}
+
+	if (!hasIntersected) return Hit::NO_HIT();
+	//std::cout << transform(ray).O + res.t * transform(ray).D << std::endl;
+
 	return res;
 }
 
