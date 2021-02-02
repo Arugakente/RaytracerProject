@@ -1636,7 +1636,43 @@ glmDraw(GLMmodel* model, unsigned int mode)
 
   group = model->groups;
   while (group) {
-		//draw here
+	if (mode & GLM_MATERIAL) {
+      material = &model->materials[group->material];
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material->ambient);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material->diffuse);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material->specular);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material->shininess);
+    }
+
+    if (mode & GLM_COLOR) {
+      material = &model->materials[group->material];
+      glColor3fv(material->diffuse);
+    }
+
+    glBegin(GL_TRIANGLES);
+    for (i = 0; i < group->numtriangles; i++) {
+      triangle = &T(group->triangles[i]);
+
+      if (mode & GLM_FLAT)
+	glNormal3fv(&model->facetnorms[3 * triangle->findex]);
+      
+      if (mode & GLM_SMOOTH)
+	glNormal3fv(&model->normals[3 * triangle->nindices[0]]);
+      if (mode & GLM_TEXTURE)
+	glTexCoord2fv(&model->texcoords[2 * triangle->tindices[0]]);
+      glVertex3fv(&model->vertices[3 * triangle->vindices[0]]);
+      
+      if (mode & GLM_SMOOTH)
+	glNormal3fv(&model->normals[3 * triangle->nindices[1]]);
+      if (mode & GLM_TEXTURE)
+	glTexCoord2fv(&model->texcoords[2 * triangle->tindices[1]]);
+      glVertex3fv(&model->vertices[3 * triangle->vindices[1]]);
+      
+      if (mode & GLM_SMOOTH)
+	glNormal3fv(&model->normals[3 * triangle->nindices[2]]);
+      if (mode & GLM_TEXTURE)
+	glTexCoord2fv(&model->texcoords[2 * triangle->tindices[2]]);
+      glVertex3fv(&model->vertices[3 * triangle->vindices[2]]);
     }
     glEnd();
 

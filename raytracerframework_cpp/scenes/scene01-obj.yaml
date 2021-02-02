@@ -16,10 +16,9 @@ RenderMode: "phong"
 
 Camera:
     eye: [200,200,1000]
-    center: [0,0,0]
-    up: [0,0.05,0]
+    center: [200,200,200]
+    up: [0,1.0,0]
     viewSize: [400,400]
-
 
 Lights:
 - position: [-200,600,1500]
@@ -40,8 +39,10 @@ Objects:
     n: 64
     refract: false
 - type: mesh
-  position: [110,130,200]
-  file: "Wheelbarrow.obj"
+  position: [200,200,0]
+  rotation: [0.0,0.0,0.0]
+  file: "fox.obj"
+  scale: 20
   material: # orange
     color: [1.0,0.5,0.0]
     ka: 0.2

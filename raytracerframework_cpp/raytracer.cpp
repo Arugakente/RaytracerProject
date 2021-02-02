@@ -280,7 +280,8 @@ Object* Raytracer::parseObject(const YAML::Node& node)
 		string file = node["file"];
 		char *cstr = new char[file.length() + 1];
 		strcpy(cstr, file.c_str());
-		Mesh *mesh = new Mesh(pos, rot, vel, cstr);
+		float sc = node["scale"];
+		Mesh *mesh = new Mesh(pos, rot, vel, cstr, sc);
 		returnObject = mesh;
 		delete[] cstr;
 	}
