@@ -21,6 +21,30 @@ Lights:
   color: [1.0,1.0,1.0]
 
 Objects:
+- type: csg
+  position: [200,200,600]
+  rotation: [0.0,0.0,90.0]
+  Composants:
+    - object:
+        type: sphere
+        position: [0,50,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 50
+      mode: union
+    - object:
+        type: sphere
+        position: [0,-50,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 50
+      mode: union
+  material: # blue
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+
 - type: plane
   position: [200,200,0]
   rotation: [0.0,0.0,0.0]
@@ -36,7 +60,7 @@ Objects:
     refract: false
 - type: triangle
   position: [200,200,600]
-  rotation: [-13.0,-13.0,0.0]
+  rotation: [-10.0,-10.0,0.0]
   v1: [0,25,0]
   v2: [-25,-25,0]
   v3: [25,-25,0]
