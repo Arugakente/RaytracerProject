@@ -23,20 +23,33 @@ Lights:
 Objects:
 - type: csg
   position: [200,200,600]
-  rotation: [0.0,0.0,90.0]
+  rotation: [0.0,0.0,0.0]
   Composants:
     - object:
         type: sphere
-        position: [0,50,0]
+        position: [15,30,0]
         rotation: [0.0,0.0,0.0]
-        radius: 50
+        radius: 20
       mode: union
     - object:
         type: sphere
-        position: [0,-50,0]
+        position: [15,-30,0]
         rotation: [0.0,0.0,0.0]
-        radius: 50
+        radius: 20
       mode: union
+    - object:
+        type: sphere
+        position: [50,0,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 35
+      mode: union
+    - object:
+        type: torus
+        position: [50,0,15]
+        rotation: [.0,0.0,0.0]
+        wideRadius: 20
+        smallRadius: 10
+      mode: intersect
   material: # blue
     color: [1.0,1.0,1.0]
     ka: 0.2

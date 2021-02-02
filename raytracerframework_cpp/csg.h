@@ -9,7 +9,7 @@ enum CombinationMode_t{Intersect,Union};
 class Csg : public Object
 {
 private:
-    std::pair<Hit,size_t> getNearestIntersectedObj(const Ray& ray);
+    std::pair<Hit,int> getNearestIntersectedObj(const Ray& ray);
 public:
 	Csg(Point position, Triple rotation, Triple velocity) : Object(position, rotation, velocity) {}
 
