@@ -40,7 +40,7 @@ Hit Csg::intersect(const Ray &ray)
 				}
 				else
 				{
-					crossed = true;
+					crossed = !crossed;
 					transformedRay.O += transformedRay.D*(contact.first.t+0.01);
 					crossedDistance += contact.first.t;
 				}

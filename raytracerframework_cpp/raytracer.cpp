@@ -321,7 +321,7 @@ Object* Raytracer::parseObject(const YAML::Node& node,bool subobject = false)
 			if((*it)["mode"] == "union")
 				csg->addElement(inerElement,Union);
 			else
-				csg->addElement(inerElement,Intersect);
+				csg->addElement(inerElement,Difference);
 		}
 		returnObject = csg;
 	}
