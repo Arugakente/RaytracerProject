@@ -41,8 +41,8 @@ Objects:
 - type: mesh
   position: [200,200,0]
   rotation: [0.0,0.0,0.0]
-  file: "fox.obj"
-  scale: 20
+  file: "../dolphins.obj"
+  scale: 1
   material: # orange
     color: [1.0,0.5,0.0]
     ka: 0.2
