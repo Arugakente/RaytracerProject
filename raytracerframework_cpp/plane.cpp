@@ -20,6 +20,13 @@ Hit Plane::intersect(const Ray &ray)
 
 	if (t < 0) return Hit::NO_HIT();
 
+	Vector intersect = TransformedRay.O + t * TransformedRay.D;
+
+	if(height != -1 && abs((intersect-position).x)>height/2)
+		return Hit::NO_HIT();
+
+	if(width != -1 && abs((intersect-position).y)>width/2)
+		return Hit::NO_HIT();
 	N = removeTransformation(N);
 	return Hit(t,N);
 }

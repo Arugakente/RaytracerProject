@@ -45,7 +45,7 @@ Objects:
       mode: union
     - object:
         type: torus
-        position: [50,0,15]
+        position: [50,0,25.5]
         rotation: [.0,0.0,0.0]
         wideRadius: 20
         smallRadius: 10
@@ -59,11 +59,8 @@ Objects:
     refract: false
 
 - type: plane
-  position: [200,200,0]
+  position: [100,100,400]
   rotation: [0.0,0.0,0.0]
-  v1: [0,25,0]
-  v2: [25,-25,0]
-  v3: [-25,-25,0]
   material: # blue
     color: [1.0,1.0,1.0]
     ka: 0.2
