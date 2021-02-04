@@ -83,12 +83,6 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 	}
 
 
-	//for semi-transparent objects, we do not consider hidden surfaces
-	if (material->alpha < 1.0 && N.dot(ray.D) >= 0.0) {
-		return trace(Ray(hit + 0.01*ray.D, ray.D), minRange, maxRange, currentReflexion);
-	}
-
-
 	/****************************************************
 	* This is where you should insert the color
 	* calculation (Phong model).
@@ -184,17 +178,21 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 						//computation of intersection with othe objects(reflexion) and in between lights(shadows)
 						auto obstacle = getNearestIntersectedObj(Ray(hit+L*0.01, L));
 						long double t = obstacle.first.t;
+						
 
-						if (!shadows || !obstacle.second || t > (currentLight.position - hit).length()) 
+						if (!shadows || !obstacle.second || t > (currentLight.position - hit).length() || (obstacle.second? obstacle.second->material->alpha != 1.0 : false) )
 						{
+							double obsAlpha = 0.0;
+							if (obstacle.second && shadows && t < (currentLight.position - hit).length()) obsAlpha = obstacle.second->material->alpha;
+
 							if(renderMode == phong)
 							{
 								long double cosineDiff = L.dot(N);
 								long double cosineSpec = R.dot(V);
 								if (cosineDiff >= 0.0)
-									currentId += currentLight.color * material->kd * cosineDiff;
+									currentId += (1 - obsAlpha) * currentLight.color * material->kd * cosineDiff;
 								if(cosineSpec >= 0.0)
-									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+									currentIs += (1 - obsAlpha) * currentLight.color * material->ks * pow(cosineSpec, material->n);
 							}
 							else
 							{
@@ -208,11 +206,11 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 
 
 								if(cosineSpec >= 0.0)
-									currentIs += currentLight.color * material->ks * pow(cosineSpec, material->n);
+									currentIs += (1 - obsAlpha) * currentLight.color * material->ks * pow(cosineSpec, material->n);
 
 								Color Kcool = Color(0.0,0.0,this->b)+this->alpha*tmpId;
 								Color Kwarm = Color(this->y,this->y,0.0)+ this->beta*tmpId;
-								currentId += Kcool* (1 - N.dot(L))/2 + Kwarm* (1 +  N.dot(L))/2;
+								currentId += (1 - obsAlpha) * Kcool* (1 - N.dot(L))/2 + Kwarm* (1 +  N.dot(L))/2;
 							}
 						}
 					}

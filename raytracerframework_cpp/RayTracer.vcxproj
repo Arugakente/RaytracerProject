@@ -90,6 +90,7 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="cone.cpp" />
+    <ClCompile Include="csg.cpp" />
     <ClCompile Include="deg4solver.cpp" />
     <ClCompile Include="disc.cpp" />
     <ClCompile Include="glm.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="cone.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="csg.h" />
     <ClInclude Include="deg4solver.h" />
     <ClInclude Include="disc.h" />
     <ClInclude Include="glm.h" />

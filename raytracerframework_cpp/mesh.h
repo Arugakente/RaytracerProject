@@ -35,8 +35,8 @@ public:
 				Point offset1 = p1 - bary;
 				Point offset2 = p2 - bary;
 				Point offset3 = p3 - bary;
-
-				Triangle t = Triangle(position + bary, rotation, velocity, offset1, offset2, offset3);
+				                                   //we don't double rotation and velocity
+				Triangle t = Triangle(position + bary, Vector(0, 0, 0), Vector(0, 0, 0), offset1, offset2, offset3);
 				triangles.push_back(t);
 			}
 			group = group->next;

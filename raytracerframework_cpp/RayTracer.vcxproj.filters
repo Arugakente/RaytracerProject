@@ -144,6 +144,9 @@
     <ClCompile Include="disc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="csg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="image.h">
@@ -318,6 +321,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="disc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,7 +9,8 @@ Hit Mesh::intersect(const Ray &ray)
 
 	for (Triangle t : triangles) {
 
-		Hit h = t.intersect(ray);
+		Hit h = t.intersect(transform(ray));
+		h.N = removeTransformation(h.N);
 
 		if (h.t < res.t)
 		{
