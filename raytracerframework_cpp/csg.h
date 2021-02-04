@@ -4,7 +4,7 @@
 #include <tuple>
 #include <vector>
 
-enum CombinationMode_t{Intersect,Union};
+enum CombinationMode_t{Difference,Union};
 
 class Csg : public Object
 {

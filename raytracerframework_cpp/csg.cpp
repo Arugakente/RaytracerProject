@@ -22,6 +22,7 @@ Hit Csg::intersect(const Ray &ray)
 	bool crossed = false;
 	bool hitFound = false;
 	Hit toReturn = Hit::NO_HIT();
+	long double crossedDistance = 0.0;
 
 	while(!hitFound)
 	{
@@ -34,12 +35,14 @@ Hit Csg::intersect(const Ray &ray)
 				{
 					contact.first.N = removeTransformation(contact.first.N);
             		toReturn = contact.first;
+					toReturn.t += crossedDistance;
 					hitFound = true;
 				}
 				else
 				{
-					crossed = true;
+					crossed = !crossed;
 					transformedRay.O += transformedRay.D*(contact.first.t+0.01);
+					crossedDistance += contact.first.t;
 				}
         	}
 			else
@@ -48,6 +51,7 @@ Hit Csg::intersect(const Ray &ray)
 				{
 					insideCount += 1;
 					transformedRay.O += transformedRay.D*(contact.first.t+0.01);
+					crossedDistance += contact.first.t;
 				}
 				else
 				{
@@ -55,6 +59,7 @@ Hit Csg::intersect(const Ray &ray)
 					{
 						contact.first.N = -removeTransformation(contact.first.N);
             			toReturn = contact.first;
+						toReturn.t += crossedDistance;
 
 						hitFound = true;
 					}
@@ -62,6 +67,7 @@ Hit Csg::intersect(const Ray &ray)
 					{
 						insideCount -= 1;
 						transformedRay.O += transformedRay.D*(contact.first.t+0.01);
+						crossedDistance += contact.first.t;
 					}
 				}
 			}

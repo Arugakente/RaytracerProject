@@ -9,6 +9,7 @@ src: contains every .cpp and .h file (+ the Makefile) at the end of the assignme
 
 bonuses :
  - Constructive solid geometry
+ - Plane texture
 (- alpha now impacts the shadows)
 
 !!! WARNING - here is the computation time for our scenes !!! (in the batch order)

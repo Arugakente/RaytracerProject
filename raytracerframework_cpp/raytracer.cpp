@@ -219,7 +219,7 @@ Object* Raytracer::parseObject(const YAML::Node& node,bool subobject = false)
 
 	try { //optional rotation
 		node["rotation"] >> rot;
-	} 
+	}
 	catch (std::exception e) {
 		rot = Triple(0.0, 0.0, 0.0);
 	}
@@ -249,7 +249,27 @@ Object* Raytracer::parseObject(const YAML::Node& node,bool subobject = false)
 	}
 	if (objectType == "plane") 
 	{
-		Plane *plane = new Plane(pos, rot, vel);
+		long double height;
+		long double width;
+		try
+		{
+			node["height"] >> height ;
+		}
+		catch(std::exception e)
+		{
+			height = -1;
+		}
+
+		try
+		{
+			node["width"] >> width ;
+		}
+		catch(std::exception e)
+		{
+			width = -1;
+		}
+		
+		Plane *plane = new Plane(pos, rot, vel,height,width);
 		returnObject = plane;
 	}
 	if (objectType == "triangle") {
@@ -295,13 +315,13 @@ Object* Raytracer::parseObject(const YAML::Node& node,bool subobject = false)
             cerr << "Error: expected a sequence of objects." << endl;
             throw new std::exception;
         }
-        for(YAML::Iterator it=subObjects.begin();it!=subObjects.end();++it) 
+        for(YAML::Iterator it=subObjects.begin();it!=subObjects.end();++it)
 		{
 			Object* inerElement = parseObject((*it)["object"],true);
 			if((*it)["mode"] == "union")
 				csg->addElement(inerElement,Union);
 			else
-				csg->addElement(inerElement,Intersect);
+				csg->addElement(inerElement,Difference);
 		}
 		returnObject = csg;
 	}
