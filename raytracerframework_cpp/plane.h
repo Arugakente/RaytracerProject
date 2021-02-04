@@ -9,6 +9,7 @@ public:
 
 	virtual Hit intersect(const Ray &ray);
 
+	Vector getUV(Point hit, Vector n);
 	Point getHit(double u, double v);
 	long double height;
 	long double width;

@@ -22,13 +22,21 @@ Hit Plane::intersect(const Ray &ray)
 
 	Vector intersect = TransformedRay.O + t * TransformedRay.D;
 
-	if(height != -1 && abs((intersect-position).x)>height/2)
+	if(width == -1 || abs(intersect.x)>=width/2)
 		return Hit::NO_HIT();
 
-	if(width != -1 && abs((intersect-position).y)>width/2)
+	if(height == -1 || abs(intersect.y)>=height/2)
 		return Hit::NO_HIT();
 	N = removeTransformation(N);
 	return Hit(t,N);
+}
+
+Vector Plane::getUV(Point hit, Vector n)
+{
+	if(height == -1 || width == -1)
+		return Vector(0,0);
+	Point absolute = hit-position;
+	return Vector((absolute.x+width/2)/width,(absolute.y+height/2)/height);
 }
 
 Point Plane::getHit(double u, double v)
