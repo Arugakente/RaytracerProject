@@ -1,0 +1,7 @@
+(not in priority order for the moment)
+
+- Fix obj loaded (if no mtl it should still work)
+- Plane bump mapping (pretty straight forward)
+- Lens flare
+- CSG Intersection
+- Cylinder and/or Box (rectangular box)
