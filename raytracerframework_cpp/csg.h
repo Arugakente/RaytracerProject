@@ -4,7 +4,7 @@
 #include <tuple>
 #include <vector>
 
-enum CombinationMode_t{Difference,Union};
+enum CombinationMode_t{Difference,Union,Intersection};
 
 class Csg : public Object
 {
@@ -13,6 +13,8 @@ private:
 public:
 	Csg(Point position, Triple rotation, Triple velocity) : Object(position, rotation, velocity) {}
 
+    int intersectCount = 0;
+    
 	virtual Hit intersect(const Ray &ray);
     void addElement(Object* newObj,CombinationMode_t cMode);
 
