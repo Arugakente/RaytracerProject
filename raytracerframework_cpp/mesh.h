@@ -9,7 +9,7 @@ class Mesh : public Object
 {
 public:
 	GLMmodel* model;
-	std::vector<Triangle> triangles;
+	std::vector<std::pair<Triangle, GLMtriangle*> > triangles;
 	float scale = 1.0;
 
 	Mesh(Point position, Triple rotation, Triple velocity, char* objfile, float scale = 1.0) : Object(position, rotation, velocity), scale(scale)
@@ -37,7 +37,7 @@ public:
 				Point offset3 = p3 - bary;
 				                                   //we don't double rotation and velocity
 				Triangle t = Triangle(position + bary, Vector(0, 0, 0), Vector(0, 0, 0), offset1, offset2, offset3);
-				triangles.push_back(t);
+				triangles.push_back(std::pair<Triangle, GLMtriangle*>(t,tr));
 			}
 			group = group->next;
 		}
@@ -45,6 +45,7 @@ public:
 
 
 	virtual Hit intersect(const Ray &ray);
+	std::pair<Triangle, GLMtriangle*>* getTriangle(Point hit);
 	Vector getUV(Point hit, Vector n);
 	Point getHit(double u, double v);
 };

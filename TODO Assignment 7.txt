@@ -1,7 +1,10 @@
 (not in priority order for the moment)
 
-- Fix obj loaded (if no mtl it should still work)
-- Plane bump mapping (pretty straight forward)
-- Lens flare
-- CSG Intersection
+Q - Fix obj loaded (if no mtl it should still work)
+Q - Plane/Triangle bump mapping (pretty straight forward)
 - Cylinder and/or Box (rectangular box)
+
+Main goals :
+G + Lens flare
+Q + Texture coordinate OBJ
+G - CSG Intersection
