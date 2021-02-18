@@ -454,6 +454,14 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			{
 				scene->setEdgeLines(false);
 			}
+			try
+			{
+				scene->setLensFlare(doc["LensFlare"]);
+			}
+			catch(std::exception e)
+			{
+				scene->setLensFlare(false);
+			}
 
             // Read and parse the scene objects
             const YAML::Node& sceneObjects = doc["Objects"];

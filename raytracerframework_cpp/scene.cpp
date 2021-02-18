@@ -21,7 +21,8 @@
 #include "scene.h"
 #include "material.h"
 #include <algorithm>
-
+#include <random>
+#include <ctime>
 
 std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
 {
@@ -348,7 +349,8 @@ void Scene::render(Image &img)
 		c = 0;
 	}
 
-	const double goldenAngle = 2*3.141592653589793238462643383279502884*((3-sqrt(5))/2);
+	long double pi = 3.141592653589793238462643383279502884;
+	const double goldenAngle = 2*pi*((3-sqrt(5))/2);
 
 	for (double t = -expTime / 2; t <= expTime / 2; t += dt)
 	{
@@ -395,10 +397,124 @@ void Scene::render(Image &img)
 					tmp(x,y) += sumColor/(superSamplingFactor*superSamplingFactor);
         		}
 			}
+			if(lensFlare && hasCamera)
+			{
+				std::cout << "rendering lens flare" << std::endl;
+				Point cameraPos = camera->eye;
 
+				//render for each lights
+				for(auto current : lights)
+				{
+					//computing camera to light vector : 
+					Vector cameraToLightVec = current->position - cameraPos;
+					Vector tmpVec = cameraToLightVec;
+					tmpVec.normalize();
+					auto hit = getNearestIntersectedObj(Ray(cameraPos,tmpVec));
+					std::cout << (hit.first.t > cameraToLightVec.length()) << std::endl;
+					if(( cameraToLightVec.dot(camera->center-camera->eye) > 0) && hit.first.t > cameraToLightVec.length())
+					{
+						//projection of the vector on plane
+						cameraToLightVec.z = 0.0;
+
+						if(camera->up.x!=0)
+						{
+							cameraToLightVec.x/=camera->up.x;
+						}
+						if(camera->up.y!=0)
+						{
+							cameraToLightVec.y/=camera->up.y;
+						}
+						if(camera->side.x!=0)
+						{
+							cameraToLightVec.x/=camera->side.x;
+						}
+						if(camera->side.y!=0)
+						{
+							cameraToLightVec.y/=camera->side.y;
+						}
+
+						float lightDistance = cameraToLightVec.length();
+						//normalise to get unit vector
+						cameraToLightVec.normalize();
+						cameraToLightVec.y = -cameraToLightVec.y;
+
+						Point lightPoint = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*lightDistance;
+
+						//3 empty circles
+						Point empty1 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(1.15*lightDistance);
+						Point empty2 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(-0.2*lightDistance);
+						Point empty3 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(-0.5*lightDistance);
+						int radiusE1 = 50 *(0.2/camera->up.y);
+						int radiusE2 = 110*(0.2/camera->up.y);
+						int radiusE3 = 200*(0.2/camera->up.y);
+
+						DrawEmpty(tmp,empty1.x,empty1.y,radiusE1);
+						DrawEmpty(tmp,empty2.x,empty2.y,radiusE2);
+						DrawEmpty(tmp,empty3.x,empty3.y,radiusE3);
+
+						//light halo
+						float radius = 120*(0.2/camera->up.y);
+						DrawHalo(tmp,lightPoint.x,lightPoint.y,radius);
+
+						//circle
+						radius = 50*(0.2/camera->up.y);
+						DrawCircle(tmp,lightPoint.x,lightPoint.y,radius);
+
+						//bright spark
+						srand(time(NULL));
+						for(int i = 0 ; i< 100 ; i++)
+						{
+    						long double angle = ((float)rand() / RAND_MAX) * 2*pi;
+							int length = 110*(0.2/camera->up.y)*((float)rand() / RAND_MAX);
+							float initialSize = 15*(0.2/camera->up.y)*((float)rand() / RAND_MAX);
+
+							float dx = cos(angle);
+    						float dy = sin(angle);
+
+    						float fx = lightPoint.x;
+    						float fy = lightPoint.y;
+
+							for(int j = 0 ; j<length ; j++)
+							{
+								int raySize = initialSize*(((float)(length)-j)/(float)(length))*(((float)(length)-j)/(float)(length))*(((float)(length)-j)/(float)(length));//floor((80-j)*initialSize);
+        						for(int	y = -raySize ; y< raySize ;y++)
+								{
+        							for(int	x = -raySize ; x< raySize ;x++)
+									{
+            							float r2 = x*x + y*y;
+            							c = 1 - r2/(raySize*raySize);
+            							c = c*c;
+										c = c*c;
+										if(x+fx>=0 && x+fx<=getWidth())
+										{
+											if(y+fy>=0 && y+fy<=getHeight())
+											{
+												tmp(x+fx,y+fy) *= 1-c;
+            									tmp(x+fx,y+fy) += Color(1.0,0.92,0.93)*c;
+											}
+										}
+									}
+								}
+								fx += dx;
+        						fy += dy;
+							}
+						}
+
+						//two nearest filled
+						Point filled1 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(0.60*lightDistance);
+						Point filled2 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(0.53*lightDistance);
+						int radius1 = 70*(0.2/camera->up.y);
+						int radius2 = 30*(0.2/camera->up.y);
+						DrawFilled(tmp,filled1.x,filled1.y,radius1);
+						DrawFilled(tmp,filled2.x,filled2.y,radius2);
+					}
+
+				}
+			}
 			//addition of the edgelines
 			if(edgeLines)
 			{
+				std::cout << "rendering edge lines" << std::endl;
 				std::vector<std::vector<long double>> zValues;
 				//computing zbuffer
 				for (int x = 0; x < w; x++)
@@ -429,6 +545,26 @@ void Scene::render(Image &img)
 				renderMode = previousMode;
 
 
+				for (int y = 1; y < h-1; y++)
+            		for (int x = 1; x < w-1; x++)
+            		{
+						long double variation = (zValues[x-1][y-1] + 2*zValues[x-1][y] + zValues[x-1][y+1]
+								  		  	    +2*zValues[x][y-1] + -12*zValues[x][y] + 2*zValues[x][y+1]
+								  				+zValues[x+1][y-1] + 2*zValues[x+1][y] + zValues[x+1][y+1])/9;
+
+						if(variation*variation>1)
+							tmp(x,y) = Color(0,0,0);
+						else
+						{
+							Vector normVariation = ( normals[x-1][y-1] + 2*normals[x-1][y] + normals[x-1][y+1]
+													+2*normals[x][y-1] + -12*normals[x][y] + 2*normals[x][y+1]
+									  				+normals[x+1][y-1] + 2*normals[x+1][y] + normals[x+1][y+1])/9;
+
+							if(normVariation.length() > 0.1)
+								tmp(x,y) = Color(0,0,0);
+						}
+					}
+				
 				for (int y = 1; y < h-1; y++)
             		for (int x = 1; x < w-1; x++)
             		{
@@ -563,4 +699,110 @@ void Scene::setBeta(float b)
 void Scene::setEdgeLines(bool el)
 {
 	edgeLines = el;
+}
+void Scene::setLensFlare(bool lf)
+{
+	lensFlare = lf;
+}
+
+float Scene::smoother(float radius)
+{
+	if (radius < 0.99) 
+		return 0;
+    else if(radius >= 1.01) 
+		return 1;
+   	else
+	{
+		radius = (radius-0.99) / (1.01-0.99);
+    	return (radius*radius) * (3-2*radius);
+	}
+}
+
+void Scene::DrawEmpty(Image& img,int xPos,int yPos,float radius)
+{
+	for(int x = -radius ; x<radius ; x++)
+		for(int y = -radius ; y<radius; y++)
+    	{
+    		float r = sqrt( x*x + y*y )/radius;
+
+			float c =  r*r;
+			c = c*c*c;
+			if (r>1) c=0;
+
+			c*=1-smoother(r);
+			if(xPos+x>=0 && xPos+x<getWidth())
+			{
+				if(yPos+y>=0 && yPos+y<getHeight())
+				{
+					img(xPos+x,yPos+y) *= 1-c*0.2;
+					img(xPos+x,yPos+y) += Color(0.56,0.49,0.04)*c*0.2;
+				}
+			}
+		}
+}
+
+void Scene::DrawFilled(Image& img,int xPos,int yPos,float radius)
+{
+	for(int x = -radius ; x<radius ; x++)
+		for(int y = -radius ; y<radius; y++)
+    	{
+    		float r = sqrt( x*x + y*y )/radius;
+
+			float c = r;
+
+			c*=1-smoother(r);
+			if(xPos+x>=0 && xPos+x<getWidth())
+			{
+				if(yPos+y>=0 && yPos+y<getHeight())
+				{
+					img(xPos+x,yPos+y) *= 1-0.4*c;
+					img(xPos+x,yPos+y) += Color(0.22,0.16,0.65)*0.4*c;
+				}
+			}
+		}
+}
+
+void Scene::DrawHalo(Image& img,int xPos,int yPos,float radius)
+{
+	for(int x = -radius ; x<radius ; x++)
+		for(int y = -radius ; y<radius; y++)
+    	{
+    		float r = sqrt( x*x + y*y )/radius;
+
+			float c = (1-r)*(1-r);
+
+			c*= 1-smoother(r);
+			if(xPos+x>=0 && xPos+x<=getWidth())
+			{
+				if(yPos+y>=0 &&	yPos+y<=getHeight())
+				{
+					img(xPos+x,yPos+y) *= 1-c;
+					img(xPos+x,yPos+y) += Color(0.84,0.38,0.39)*c;
+				}
+			}
+		}
+}
+
+void Scene::DrawCircle(Image& img,int xPos,int yPos,float radius)
+{
+	for(int x = -radius ; x<radius ; x++)
+		for(int y = -radius ; y<radius; y++)
+    	{
+    		float r = sqrt( x*x + y*y )/radius;
+
+			float c = 1-abs(r-.9)/.1;
+			if (c < 0) c = 0;
+			c = c*c;
+			c = c*c;
+
+			c*= 1-smoother(r);
+			if(xPos+x>=0 && xPos+x<=getWidth())
+			{
+				if(yPos+y>=0 &&	yPos+y<=getHeight())
+				{
+					img(xPos+x,yPos+y) *= 1-c;
+					img(xPos+x,yPos+y) += Color(0.84,0.38,0.39)*c;
+				}
+			}
+		}
 }

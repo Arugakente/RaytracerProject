@@ -44,6 +44,7 @@ private:
 
 	bool shadows;
 	bool edgeLines;
+	bool lensFlare;
 
 	int maxRecursionDepth;
     int superSamplingFactor;
@@ -79,6 +80,8 @@ public:
     void setLightSampling(int s);
 	void setExposureSamples(int s);
 	void setEdgeLines(bool el);
+	void setLensFlare(bool lf);
+
 
 	void setB(float b);
 	void setY(float y);
@@ -87,6 +90,12 @@ public:
 
 	int getWidth();
 	int getHeight();
+
+	void DrawEmpty(Image& img,int xPos,int yPos,float radius);
+	void DrawFilled(Image& img,int xPos,int yPos,float radius);
+	void DrawHalo(Image& img,int xPos,int yPos,float radius);
+	void DrawCircle(Image& img,int xPos,int yPos,float radius);
+	float smoother(float radius);
 
     unsigned int getNumObjects() { return objects.size(); }
     unsigned int getNumLights() { return lights.size(); }
