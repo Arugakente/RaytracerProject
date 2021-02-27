@@ -17,8 +17,8 @@ RenderMode: "phong"
 Camera:
     eye: [200,200,1000]
     center: [200,200,200]
-    up: [0,4.0,0]
-    viewSize: [100,100]
+    up: [0,1.0,0]
+    viewSize: [400,400]
 
 Shadows: false
 SuperSampling:
@@ -43,10 +43,10 @@ Objects:
     n: 64
     refract: false
 - type: mesh
-  position: [200,200,-250]
-  rotation: [20.0,0.0,0.0]
+  position: [280,0,-200]
+  rotation: [0.0,-140.0,0.0]
   file: "fox.obj"
-  scale: 20
+  scale: 25
   material:
     texture: "fox_paint.png"
     ka: 0.2
