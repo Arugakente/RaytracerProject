@@ -21,12 +21,72 @@ Lights:
   color: [1.0,1.0,1.0]
 
 Objects:
-- type: sphere
-  position: [90,320,100]
+- type: csg
+  position: [200,200,600]
   rotation: [0.0,0.0,0.0]
-  radius: 50
+  Composants:
+    - object:
+        type: sphere
+        position: [15,30,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 20
+      mode: union
+    - object:
+        type: sphere
+        position: [15,-30,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 20
+      mode: union
+    - object:
+        type: sphere
+        position: [50,0,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 35
+      mode: union
+    - object:
+        type: torus
+        position: [50,0,25.5]
+        rotation: [.0,0.0,0.0]
+        wideRadius: 20
+        smallRadius: 10
+      mode: intersect
+  material: # blue
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+
+- type: plane
+  position: [100,100,400]
+  rotation: [0.0,0.0,0.0]
+  material: # blue
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+- type: triangle
+  position: [200,200,600]
+  rotation: [-10.0,-10.0,0.0]
+  v1: [0,25,0]
+  v2: [-25,-25,0]
+  v3: [25,-25,0]
   material: # blue
     color: [0.0,0.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+- type: disc
+  position: [200,200,500]
+  rotation: [-10.0,-10.0,0.0]
+  radius : 50
+  material: # blue
+    color: [0.0,1.0,0.0]
     ka: 0.2
     kd: 0.7
     ks: 0.5

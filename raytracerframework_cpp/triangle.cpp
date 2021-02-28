@@ -35,6 +35,11 @@ Hit Triangle::intersect(const Ray &ray)
     	N.dot(e3.cross(C2)) <= 0 )
 		return Hit::NO_HIT();
 
+	//std::cout << intersect << std::endl;
+	//std::cout << TransformedRay.O << std::endl;
+	//std::cout << TransformedRay.D << std::endl;
+	//std::cout << abs(intersect.dot(N)) << std::endl << std::endl;
+
 	N = removeTransformation(N);
 	return Hit(t, N);
 }

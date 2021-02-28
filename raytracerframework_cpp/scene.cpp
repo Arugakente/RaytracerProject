@@ -20,6 +20,7 @@
 
 #include "scene.h"
 #include "material.h"
+#include "mesh.h"
 #include <algorithm>
 #include <random>
 #include <ctime>
@@ -29,6 +30,7 @@ std::pair<Hit,Object*> Scene::getNearestIntersectedObj(const Ray& ray)
 	Hit min_hit(std::numeric_limits<long double>::infinity(), Vector());
 	Object *obj = NULL;
 	for (unsigned int i = 0; i < objects.size(); ++i) {
+
 		Hit hit(objects[i]->intersect(ray));
 		if (hit.t < min_hit.t) {
 			min_hit = hit;
@@ -186,13 +188,13 @@ Color Scene::trace(const Ray &ray, float minRange, float maxRange, int currentRe
 							double obsAlpha = 0.0;
 							if (obstacle.second && shadows && t < (currentLight.position - hit).length()) obsAlpha = obstacle.second->material->alpha;
 
-							if(renderMode == phong)
+							if (renderMode == phong)
 							{
 								long double cosineDiff = L.dot(N);
 								long double cosineSpec = R.dot(V);
 								if (cosineDiff >= 0.0)
 									currentId += (1 - obsAlpha) * currentLight.color * material->kd * cosineDiff;
-								if(cosineSpec >= 0.0)
+								if (cosineSpec >= 0.0)
 									currentIs += (1 - obsAlpha) * currentLight.color * material->ks * pow(cosineSpec, material->n);
 							}
 							else
