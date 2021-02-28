@@ -1,0 +1,215 @@
+---
+#  This is an example scene description for the raytracer framework created 
+#  for the Computer Science course "Introduction to Computer Graphics"
+#  taught at the University of Groningen by Tobias Isenberg.
+#
+#  The scene description format we use is based on YAML, which is a human friendly 
+#  data serialization standard. This gives us a flexible format which should be
+#  fairly easy to make both backward and forward compatible (i.e., by ignoring
+#  unknown directives). In addition parsers are available for many languages.
+#  See http://www.yaml.org/ for more information on YAML.
+#
+#  The example scene description should largely speak for itself. By now
+#  it should be clear that the #-character can be used to insert comments.
+
+# Scene description : similar to the Celeste chapter 9 OST cover art
+# Madeline in the center, with some stars, the shadow of an eagle
+# Stars might have velocity
+# Background have some reflection
+# (maybe refraction for stars ?)
+# Using lens flare, light colors
+
+
+RenderMode: "gooch"
+GoochParameters:
+  b: 0.55
+  y: 0.3
+  alpha: 0.25
+  beta: 0.5
+
+edgeLines: true
+
+Camera:
+    eye: [200,200,1000]
+    center: [200,200,150]
+    up: [0,1.0,0]
+    viewSize: [400,400]
+
+Shadows: true
+MaxRecursionDepth: 8
+SuperSampling:
+  factor: 1
+
+Lights:
+- position: [-200,600,1500]
+  color: [1.0,1.0,1.0]
+
+Objects:
+- type: sphere
+  position: [90,320,100]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # blue
+    color: [0.0,0.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0
+    n: 64
+    refract: false
+- type: sphere
+  position: [210,270,300]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # green
+    color: [0.0,1.0,0.0]
+    ka: 0.2
+    kd: 0.3
+    ks: 0
+    n: 8
+    refract: false
+- type: sphere
+  position: [290,170,150]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # red
+    color: [1.0,0.0,0.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0
+    n: 32
+    refract: false
+- type: sphere
+  position: [140,220,400]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # yellow
+    color: [1.0,0.8,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.0
+    n: 1
+    refract: false
+- type: sphere
+  position: [110,130,200]
+  rotation: [0.0,0.0,0.0]
+  radius: 50
+  material: # orange
+    color: [1.0,0.5,0.0]
+    ka: 0.2
+    kd: 0.8
+    ks: 0
+    n: 32
+- type: plane
+  position: [200,200,-1000]
+  rotation: [0.0,0.0,0.0]
+  v1: [0,25,0]
+  v2: [25,-25,0]
+  v3: [-25,-25,0]
+  material:
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: false
+- type: csg
+  position: [120,180,500]
+  rotation: [0.0, 0.0, 0.0]
+  Composants:
+    - object:
+        type: cone
+        position: [0,-60,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 40
+        height: 150
+      mode: union
+    - object:
+        type: cone
+        position: [0,0,0]
+        rotation: [180.0,0.0,0.0]
+        radius: 40
+        height: 150
+      mode: intersect
+  material: # blue
+    color: [1.0,0.0,0.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.2
+    n: 64
+    refract: true
+    eta: 1.5 #glass
+- type: csg
+  position: [200,200,500]
+  rotation: [115.0, 0.0, 0.0]
+  Composants:
+    - object:
+        type: torus
+        position: [-15,0,0]
+        rotation: [0.0,0.0,0.0]
+        wideRadius: 30
+        smallRadius: 5
+      mode: union
+    - object:
+        type: torus
+        position: [15,0,0]
+        rotation: [.0,0.0,0.0]
+        wideRadius: 30
+        smallRadius: 5
+      mode: union
+    - object:
+        type: sphere
+        position: [0,0,0]
+        rotation: [.0,0.0,0.0]
+        radius: 40
+      mode: intersect
+  material: # blue
+    color: [0.53,0.725,0.974]
+    ka: 0.2
+    kd: 0.8
+    ks: 0.0
+    n: 32
+    refract: true
+    eta: 1.5 #glass    
+- type: csg
+  position: [240,250,500]
+  rotation: [-12.5,45.0,0.0]
+  Composants:
+    - object:
+        type: sphere
+        position: [15,30,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 20
+      mode: difference
+    - object:
+        type: sphere
+        position: [15,-30,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 20
+      mode: difference
+    - object:
+        type: sphere
+        position: [50,0,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 35
+      mode: union
+    - object:
+        type: torus
+        position: [50,0,25.5]
+        rotation: [.0,0.0,0.0]
+        wideRadius: 20
+        smallRadius: 10
+      mode: difference
+    - object:
+        type: sphere
+        position: [50,26,0]
+        rotation: [0.0,0.0,0.0]
+        radius: 35
+      mode: intersect
+  material: # blue
+    color: [1.0,1.0,1.0]
+    ka: 0.2
+    kd: 0.7
+    ks: 0.5
+    n: 64
+    refract: true
+    eta: 1.5 #glass    
