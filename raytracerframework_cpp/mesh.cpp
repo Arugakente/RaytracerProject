@@ -92,16 +92,16 @@ Vector Mesh::getUV(Point hit, Vector n)
 	//texcoords Interpolation
 	double delta = ((t.v1Offset - t.v2Offset).cross(t.v1Offset - t.v3Offset)).length();
 
-	double w1 = ((newHit -t.v2Offset).cross(newHit -t.v3Offset)).length() / delta;
-	double w2 = ((newHit -t.v1Offset).cross(newHit -t.v3Offset)).length() / delta;
-	double w3 = ((newHit -t.v1Offset).cross(newHit -t.v2Offset)).length() / delta;
+	double w1 = ((newHit - t.v2Offset).cross(newHit - t.v3Offset)).length() / delta;
+	double w2 = ((newHit - t.v1Offset).cross(newHit - t.v3Offset)).length() / delta;
+	double w3 = ((newHit - t.v1Offset).cross(newHit - t.v2Offset)).length() / delta;
 
-	double u = w1 * (model->texcoords + 2 * tr->tindices[0])[0] + 
-		       w2 * (model->texcoords + 2 * tr->tindices[1])[0] + 
-		       w3 * (model->texcoords + 2 * tr->tindices[2])[0];
-	double v = w1 * (model->texcoords + 2 * tr->tindices[0])[1] +
-		       w2 * (model->texcoords + 2 * tr->tindices[1])[1] +
-		       w3 * (model->texcoords + 2 * tr->tindices[2])[1];
+	float* uv1 = model->texcoords + 2 * tr->tindices[0];
+	float* uv2 = model->texcoords + 2 * tr->tindices[1];
+	float* uv3 = model->texcoords + 2 * tr->tindices[2];
+	
+	float u = w1 * uv1[0] + w2 * uv2[0] + w3 * uv3[0];
+	float v = 1 - (w1 * uv1[1] + w2 * uv2[1] + w3 * uv3[1]); //inverted axis
 
 	return Vector(u, v);
 }

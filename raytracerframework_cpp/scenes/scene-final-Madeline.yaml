@@ -25,49 +25,91 @@ RenderMode: "phong"
 Camera:
     eye: [200,200,1000]
     center: [200,200,200]
-    up: [0,1.0,0]
-    viewSize: [400,400]
+    up: [0,2.0,0]
+    viewSize: [300,200]
 
 Shadows: true
-MaxRecursionDepth: 5
+MaxRecursionDepth: 2
 SuperSampling:
-  factor: 1
+  factor: 2
 
 Lights:
-- position: [-200,600,1500]
+- position: [-200,-100,0]
   color: [1.0,1.0,1.0]
+- position: [-200,400,100]
+  color: [0.97, 0.24, 0.66]
+- position: [-400,200,50]
+  color: [0.97, 0.24, 0.66]
+- position: [1600,800,100]
+  color: [0.24,0.66,0.97]
 
 Objects:
 - type: plane
-  position: [200,200,-1000]
+  position: [200,200,-500]
   rotation: [0.0,0.0,0.0]
   v1: [0,25,0]
   v2: [25,-25,0]
   v3: [-25,-25,0]
   material:
-    color: [0.3,0.1,0.7]
+    color: [0.23,0.2,0.61]
     ka: 0.2
     kd: 0.7
     ks: 0.5
     n: 64
     refract: false
+#- type: mesh
+#  position: [100,100,-200]
+#  rotation: [10.0,0.0,0.0]
+#  file: "Madeline_body.obj"
+#  scale: 20
+#  material:
+#    texture: "Madeline_body.png"
+#    ka: 0.7
+#    kd: 0.3
+#    ks: 0.1
+#    n: 32
+#    refract: false
+#- type: mesh
+#  position: [100,100,-200]
+#  rotation: [10.0,0.0,0.0]
+#  file: "Madeline_hair.obj"
+#  scale: 20
+#  material:
+#    texture: "Madeline_hair.png"
+#    ka: 0.7
+#    kd: 0.3
+#    ks: 0.1
+#    n: 32
+#    refract: false
 - type: mesh
   position: [0, 0,-250]
-  rotation: [90.0,0.0,0.0]
+  rotation: [90.0,0.12,0.0]
   file: "star.obj"
-  scale: 100
+  scale: 50
   material:
-    color: [0.8, 0.2, 0.4]
-    ka: 0.2
-    kd: 0.8
+    color: [0.87, 0.14, 0.56]
+    ka: 0.8
+    kd: 0.3
     ks: 0.5
     n: 32
     refract: false
 - type: mesh
-  position: [200,0,-250]
-  rotation: [90.0,20.0,0.0]
+  position: [-40, 150,-250]
+  rotation: [90.0,0.32,10.0]
   file: "star.obj"
-  scale: 100
+  scale: 65
+  material:
+    color: [0.94, 0.24, 0.76]
+    ka: 1.0
+    kd: 0.3
+    ks: 0.7
+    n: 32
+    refract: false
+- type: mesh
+  position: [230,-50,-250]
+  rotation: [90.0,18.8,0.0]
+  file: "star.obj"
+  scale: 70
   material:
     color: [1.0, 1.0, 1.0]
     ka: 0.2
@@ -75,4 +117,112 @@ Objects:
     ks: 0.5
     n: 32
     refract: true
-    eta: 1.2
+    eta: 1.5
+- type: mesh
+  position: [250,100,-250]
+  rotation: [90.0,-42.0,0.0]
+  file: "star.obj"
+  scale: 40
+  material:
+    color: [1.0, 1.0, 1.0]
+    ka: 0.9
+    kd: 0.3
+    ks: 0.5
+    n: 32
+    refract: false
+- type: mesh
+  position: [-40,-220,-250]
+  rotation: [90.0,33.0,0.0]
+  file: "star.obj"
+  scale: 25
+  material:
+    color: [1.0, 1.0, 1.0]
+    ka: 0.9
+    kd: 0.3
+    ks: 0.5
+    n: 32
+    alpha: 0.7
+    refract: false
+- type: mesh
+  position: [-60,-175,-250]
+  rotation: [90.0,-36.0,0.0]
+  file: "star.obj"
+  scale: 45
+  material:
+    color: [1.0, 1.0, 1.0]
+    ka: 0.9
+    kd: 0.3
+    ks: 0.5
+    n: 32
+    refract: false
+- type: mesh
+  position: [220,115,-250]
+  rotation: [90.0,26.5,4.0]
+  file: "star.obj"
+  scale: 70
+  material:
+    color: [1.0, 1.0, 1.0]
+    ka: 0.9
+    kd: 0.3
+    ks: 0.5
+    n: 32
+    refract: false
+- type: sphere
+  position: [50,230,0]
+  rotation: [0.0,0.0,0.0]
+  radius: 5
+  material: 
+    color: [1.0, 1.0, 1.0]
+    ka: 0.8
+    kd: 0.2
+    ks: 0.3
+    n: 8
+    alpha: 0.8
+    refract: false
+- type: sphere
+  position: [-20,110,0]
+  rotation: [0.0,0.0,0.0]
+  radius: 10
+  material: 
+    color: [1.0, 1.0, 1.0]
+    ka: 0.8
+    kd: 0.2
+    ks: 0.3
+    n: 8
+    alpha: 0.5
+    refract: false
+- type: sphere
+  position: [280,70,0]
+  rotation: [0.0,0.0,0.0]
+  radius: 7
+  material: 
+    color: [1.0, 1.0, 1.0]
+    ka: 0.8
+    kd: 0.2
+    ks: 0.3
+    n: 8
+    alpha: 0.7
+    refract: false
+- type: sphere
+  position: [180,50,0]
+  rotation: [0.0,0.0,0.0]
+  radius: 8
+  material: 
+    color: [1.0, 1.0, 1.0]
+    ka: 0.8
+    kd: 0.2
+    ks: 0.3
+    n: 8
+    refract: false
+- type: sphere
+  position: [110,90,0]
+  rotation: [0.0,0.0,0.0]
+  radius: 6
+  material: 
+    color: [1.0, 1.0, 1.0]
+    ka: 0.8
+    kd: 0.2
+    ks: 0.3
+    n: 8
+    alpha: 0.6
+    refract: false
