@@ -320,6 +320,11 @@ Object* Raytracer::parseObject(const YAML::Node& node,bool subobject = false)
 			Object* inerElement = parseObject((*it)["object"],true);
 			if((*it)["mode"] == "union")
 				csg->addElement(inerElement,Union);
+			else if((*it)["mode"] == "intersect")
+			{
+				csg->intersectCount ++;
+				csg->addElement(inerElement,Intersection);
+			}
 			else
 				csg->addElement(inerElement,Difference);
 		}
@@ -448,6 +453,14 @@ bool Raytracer::readScene(const std::string& inputFilename)
 			catch(std::exception e)
 			{
 				scene->setEdgeLines(false);
+			}
+			try
+			{
+				scene->setLensFlare(doc["LensFlare"]);
+			}
+			catch(std::exception e)
+			{
+				scene->setLensFlare(false);
 			}
 
             // Read and parse the scene objects

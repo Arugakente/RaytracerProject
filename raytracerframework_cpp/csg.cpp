@@ -18,44 +18,88 @@ Hit Csg::intersect(const Ray &ray)
 {
     Ray transformedRay = transform(ray);
 
-	int insideCount = 0;
-	bool crossed = false;
 	bool hitFound = false;
+
+	//indication for crossing 
+	int inDiffMesh = 0;
+	int inUnionMesh = 0;
+	int inIntersectMesh = 0;
+
 	Hit toReturn = Hit::NO_HIT();
 	long double crossedDistance = 0.0;
 
 	while(!hitFound)
 	{
 		auto contact = getNearestIntersectedObj(transformedRay);
+
     	if(contact.second != -1)
     	{
         	if(objects.at(contact.second).second == Union)
         	{
-				if(insideCount == 0)
+				if(inDiffMesh == 0)
 				{
-					contact.first.N = removeTransformation(contact.first.N);
-            		toReturn = contact.first;
-					toReturn.t += crossedDistance;
-					hitFound = true;
+					if(intersectCount == inIntersectMesh)
+					{
+						contact.first.N = removeTransformation(contact.first.N);
+            			toReturn = contact.first;
+						toReturn.t += crossedDistance;
+						hitFound = true;
+					}
+					else
+					{
+						inUnionMesh += 1;
+						transformedRay.O += transformedRay.D*(contact.first.t+0.01);
+						crossedDistance += contact.first.t;
+					}
 				}
 				else
 				{
-					crossed = !crossed;
+					if(contact.first.N.dot(transformedRay.D)<=0)
+						inUnionMesh ++;
+					else
+						inUnionMesh --;
+
 					transformedRay.O += transformedRay.D*(contact.first.t+0.01);
 					crossedDistance += contact.first.t;
 				}
         	}
+			else if(objects.at(contact.second).second == Intersection)
+			{
+				if(contact.first.N.dot(transformedRay.D)<=0)
+				{
+					inIntersectMesh ++;
+					if(inIntersectMesh==intersectCount && inUnionMesh != 0 && inDiffMesh == 0)
+					{
+						contact.first.N = removeTransformation(contact.first.N);
+            			toReturn = contact.first;
+						toReturn.t += crossedDistance;
+
+						hitFound = true;
+					}
+					else
+					{
+						transformedRay.O += transformedRay.D*(contact.first.t+0.01);
+						crossedDistance += contact.first.t;
+					}
+				}
+				else
+				{
+					inIntersectMesh --;
+					transformedRay.O += transformedRay.D*(contact.first.t+0.01);
+					crossedDistance += contact.first.t;
+				}
+			}
 			else
 			{
 				if(contact.first.N.dot(transformedRay.D)<=0)
 				{
-					insideCount += 1;
+					inDiffMesh += 1;
 					transformedRay.O += transformedRay.D*(contact.first.t+0.01);
 					crossedDistance += contact.first.t;
 				}
 				else
 				{
-					if(insideCount == 1 && crossed)
+					if(inDiffMesh == 1 && inUnionMesh != 0 && intersectCount == inIntersectMesh)
 					{
 						contact.first.N = -removeTransformation(contact.first.N);
             			toReturn = contact.first;
@@ -65,7 +109,7 @@ Hit Csg::intersect(const Ray &ray)
 					}
 					else
 					{
-						insideCount -= 1;
+						inDiffMesh -= 1;
 						transformedRay.O += transformedRay.D*(contact.first.t+0.01);
 						crossedDistance += contact.first.t;
 					}
