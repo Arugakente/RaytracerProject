@@ -446,20 +446,20 @@ void Scene::render(Image &img)
 						Point empty1 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(1.15*lightDistance);
 						Point empty2 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(-0.2*lightDistance);
 						Point empty3 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(-0.5*lightDistance);
-						int radiusE1 = 50 *(0.2/camera->up.y);
-						int radiusE2 = 110*(0.2/camera->up.y);
-						int radiusE3 = 200*(0.2/camera->up.y);
+						int radiusE1 = 50 *(getHeight()/800.0);
+						int radiusE2 = 110*(getHeight() / 800.0);
+						int radiusE3 = 200*(getHeight() / 800.0);
 
 						DrawEmpty(tmp,empty1.x,empty1.y,radiusE1);
 						DrawEmpty(tmp,empty2.x,empty2.y,radiusE2);
 						DrawEmpty(tmp,empty3.x,empty3.y,radiusE3);
 
 						//light halo
-						float radius = 120*(0.2/camera->up.y);
+						float radius = 120*(getHeight() /800.0);
 						DrawHalo(tmp,lightPoint.x,lightPoint.y,radius);
 
 						//circle
-						radius = 50*(0.2/camera->up.y);
+						radius = 50*(getHeight() / 800.0);
 						DrawCircle(tmp,lightPoint.x,lightPoint.y,radius);
 
 						//bright spark
@@ -467,8 +467,8 @@ void Scene::render(Image &img)
 						for(int i = 0 ; i< 100 ; i++)
 						{
     						long double angle = ((float)rand() / RAND_MAX) * 2*pi;
-							int length = 110*(0.2/camera->up.y)*((float)rand() / RAND_MAX);
-							float initialSize = 15*(0.2/camera->up.y)*((float)rand() / RAND_MAX);
+							int length = 110*(getHeight() / 800.0)*((float)rand() / RAND_MAX);
+							float initialSize = 15*(getHeight() / 800.0)*((float)rand() / RAND_MAX);
 
 							float dx = cos(angle);
     						float dy = sin(angle);
@@ -505,8 +505,8 @@ void Scene::render(Image &img)
 						//two nearest filled
 						Point filled1 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(0.60*lightDistance);
 						Point filled2 = Point(getHeight()/2,getWidth()/2,0)+cameraToLightVec*(0.53*lightDistance);
-						int radius1 = 70*(0.2/camera->up.y);
-						int radius2 = 30*(0.2/camera->up.y);
+						int radius1 = 70*(getHeight() /800.0);
+						int radius2 = 30*(getHeight() / 800.0);
 						DrawFilled(tmp,filled1.x,filled1.y,radius1);
 						DrawFilled(tmp,filled2.x,filled2.y,radius2);
 					}
