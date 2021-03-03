@@ -25,12 +25,12 @@ RenderMode: "phong"
 Camera:
     eye: [200,200,1000]
     center: [200,200,200]
-    up: [0,2.0,0]
-    viewSize: [300,200]
+    up: [0,0.5,0]
+    viewSize: [1200,800]
 
 Shadows: false
 LensFlare: true
-MaxRecursionDepth: 2
+MaxRecursionDepth: 3
 SuperSampling:
   factor: 2
 
@@ -69,8 +69,8 @@ Objects:
   scale: 20
   material:
     texture: "Madeline_body.png"
-    ka: 0.9
-    kd: 0.2
+    ka: 0.7
+    kd: 0.1
     ks: 0
     n: 32
     refract: false
@@ -80,9 +80,9 @@ Objects:
   file: "Madeline_hair.obj"
   scale: 20
   material:
-    texture: "Madeline_hair_guigui.png"
-    ka: 0.9
-    kd: 0.2
+    texture: "Madeline_hair.png"
+    ka: 0.7
+    kd: 0.1
     ks: 0
     n: 32
     refract: false
